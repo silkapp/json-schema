@@ -1,0 +1,23 @@
+Name:                json-schema
+Version:             0.1
+Synopsis:            Types and type classes for defining JSON schemas
+License:             OtherLicense
+License-File:        LICENSE
+Author:              typLAB
+Maintainer:          code@typlab.com
+Category:            Data
+Build-type:          Simple
+Cabal-version:       >=1.6
+
+Library
+  Hs-Source-Dirs:    src
+  Exposed-Modules:   Data.JSON.Schema
+                   , Data.JSON.Schema.Combinators
+                   , Data.JSON.Schema.Generic
+                   , Data.JSON.Schema.Types
+  Build-Depends:     base == 4.*
+                   , containers >= 0.3 && < 0.5
+                   , json == 0.4.*
+                   , regular == 0.3.*
+                   , tagged == 0.2.*                   
+  Ghc-Options:       -Wall
