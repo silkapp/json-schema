@@ -33,6 +33,9 @@ instance JSONSchema () where
 instance JSONSchema Int where
   schema _ = Number 0 (-1)
 
+instance JSONSchema Integer where
+  schema _ = Number 0 (-1)
+
 instance JSONSchema Bool where
   schema _ = Boolean
 
@@ -47,6 +50,7 @@ class (JSON a, JSONSchema a) => Json a
 
 instance Json ()
 instance Json Int
+instance Json Integer
 instance Json Bool
 instance Json a => Json (Maybe a)
 instance Json a => Json [a]
