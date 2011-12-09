@@ -3,6 +3,8 @@ module Data.JSON.Schema.Types where
 
 import Data.Maybe
 import Data.Proxy
+import Data.Text (Text)
+import Data.Word (Word32)
 import Text.JSON
 
 -- | Based on the syntax specification of http://www.json.org/
@@ -36,8 +38,14 @@ instance JSONSchema Int where
 instance JSONSchema Integer where
   schema _ = Number 0 (-1)
 
+instance JSONSchema Word32 where
+  schema _ = Number 0 4294967295
+
 instance JSONSchema Bool where
   schema _ = Boolean
+
+instance JSONSchema Text where
+  schema _ = Value 0 (-1)
 
 instance JSONSchema a => JSONSchema (Maybe a) where
   schema p = Choice [Object [Field "Just" True $ schema $ fmap fromJust p], Object [Field "Nothing" True Null]]
