@@ -44,4 +44,4 @@ addFields :: [(String, Bool, Schema)] -> SchemaC
 addFields = flip $ foldr (\(k, r, v) -> addField k r v)
 
 empty :: Schema
-empty = Choice []
+empty = Object []
