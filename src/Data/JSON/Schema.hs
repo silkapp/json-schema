@@ -1,4 +1,4 @@
-module Data.JSON.Schema 
+module Data.JSON.Schema
   ( module Data.JSON.Schema.Generic
   , module Data.JSON.Schema.Types
   , Proxy (..)
