@@ -17,7 +17,7 @@ Library
                    , Data.JSON.Schema.Types
   Build-Depends:     base == 4.*
                    , containers >= 0.3 && < 0.6
-                   , json >= 0.4 && < 0.6
+                   , json >= 0.4 && < 0.8
                    , regular == 0.3.*
                    , regular-json == 0.3.*
                    , tagged >= 0.2 && < 0.5
