@@ -20,7 +20,7 @@ Library
                    , json >= 0.4 && < 0.8
                    , regular == 0.3.*
                    , regular-json == 0.3.*
-                   , tagged >= 0.2 && < 0.5
+                   , tagged >= 0.2 && < 0.7
                    -- No bounds, since we only use the Text type.
                    , text
   Ghc-Options:       -Wall
