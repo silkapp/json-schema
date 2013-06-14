@@ -55,7 +55,7 @@ instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :*: g) where
   gSchema' mc enm f p = gSchema' mc enm f (gFst <$> p) `merge` gSchema' mc enm f (gSnd <$> p)
 
 instance (Constructor c, GJSONSCHEMA f) => GJSONSCHEMA (C c f) where
-  gSchema' mc True f = const $ Value 0 (-1)
+  gSchema' _  True _ = const $ Value 0 (-1)
   gSchema' mc enm f = wrap . gSchema' mc enm f . fmap unC
     where
       wrap = if mc
