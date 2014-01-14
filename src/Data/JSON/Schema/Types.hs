@@ -5,7 +5,7 @@ import Data.Maybe
 import Data.Proxy
 import Data.Text (Text)
 import Data.Word (Word32)
-import Text.JSON
+import Data.Aeson (ToJSON, FromJSON)
 
 -- | Based on the syntax specification of http://www.json.org/
 
@@ -54,7 +54,7 @@ instance JSONSchema a => JSONSchema [a] where
   schema = Array 0 (-1) False . schema . fmap head
 
 -- | Class representing both JSON and JSONSchema instances
-class (JSON a, JSONSchema a) => Json a
+class (ToJSON a, FromJSON a, JSONSchema a) => Json a
 
 instance Json ()
 instance Json Int
