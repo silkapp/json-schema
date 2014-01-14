@@ -63,6 +63,9 @@ instance (Constructor c, GJSONSCHEMA f) => GJSONSCHEMA (M1 C c f) where
              then field (firstLetterToLower $ conName (undefined :: M1 C c f p)) True
              else id
 
+instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
+  gSchema' mc enm = gSchema' mc enm . fmap unM1
+
 firstLetterToLower :: String -> String
 firstLetterToLower ""     = ""
 firstLetterToLower (l:ls) = toLower l : ls
