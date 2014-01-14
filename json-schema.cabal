@@ -1,5 +1,5 @@
 Name:                json-schema
-Version:             0.3.0.3
+Version:             0.3.0.4
 Synopsis:            Types and type classes for defining JSON schemas
 License:             OtherLicense
 Author:              Silk
@@ -15,7 +15,7 @@ Library
                    , Data.JSON.Schema.Generic
                    , Data.JSON.Schema.Types
   Build-Depends:     base == 4.*
-                   , aeson == 0.7.*
+                   , aeson >= 0.6 && < 0.8
                    , containers >= 0.3 && < 0.6
                    , generic-aeson == 0.1.*
                    , generic-deriving == 1.6.*
