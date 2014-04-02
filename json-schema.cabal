@@ -1,6 +1,7 @@
 Name:                json-schema
 Version:             0.4
-Synopsis:            Types and type classes for defining JSON schemas
+Synopsis:            Types and type classes for defining JSON schemas.
+Description:         Types and type classes for defining JSON schemas.
 License:             BSD3
 License-file:        LICENSE
 Author:              Silk
@@ -24,3 +25,7 @@ Library
                    -- No bounds, since we only use the Text type.
                    , text
   Ghc-Options:       -Wall
+
+Source-repository head
+  Type:              Git
+  Location:          https://github.com/silkapp/json-schema.git
