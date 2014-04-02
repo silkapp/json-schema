@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
+-- | Types for defining JSON schemas.
 module Data.JSON.Schema.Types where
 
 import Data.Maybe
@@ -6,23 +7,31 @@ import Data.Proxy
 import Data.Text (Text)
 import Data.Word (Word32)
 
--- | Based on the syntax specification of http://www.json.org/
+-- | A schema is any JSON value.
+type Schema = Value
 
-data Field = Field { key :: String, required :: Bool, content :: Schema } deriving (Eq, Show)
-
+-- | A schema for a JSON value.
 data Value =
-    Choice [Value]
-  | Object [Field]
-  | Array Int Int Bool Value -- The integers represent the lower and upper bound of the array size
-                             -- The boolean denotes whether items have to unique
-  | Tuple [Value]
-  | Value Int Int   -- The integers denote the lower and upper bound of the length of the string
+    Choice [Value] -- ^ A choice of multiple values, e.g. for sum types.
+  | Object [Field] -- ^ A JSON object.
+  | Array Int Int Bool Value -- ^ An array. The integers represent the
+                             -- lower and upper bound of the array
+                             -- size. The value -1 indicates no bound.
+                             -- The boolean denotes whether items have
+                             -- to unique.
+  | Tuple [Value]   -- ^ A fixed-length tuple of different values.
+  | Value Int Int   -- ^ A string. The integers denote the lower and
+                    -- upper bound of the length of the string. The
+                    -- value -1 indicates no bound.
   | Boolean
-  | Number Int Int  -- The integers denote the lower and upper bound on the value
+  | Number Int Int  -- ^ A number. The integers denote the lower and
+                    -- upper bound on the value. The value -1
+                    -- indicates no bound.
   | Null
   deriving (Eq, Show)
 
-type Schema = Value
+-- | A field in an object.
+data Field = Field { key :: String, required :: Bool, content :: Schema } deriving (Eq, Show)
 
 -- | Class representing JSON schemas
 class JSONSchema a where
