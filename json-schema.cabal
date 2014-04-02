@@ -1,7 +1,8 @@
 Name:                json-schema
 Version:             0.4
 Synopsis:            Types and type classes for defining JSON schemas
-License:             OtherLicense
+License:             BSD3
+License-file:        LICENSE
 Author:              Silk
 Maintainer:          code@silk.co
 Category:            Data
