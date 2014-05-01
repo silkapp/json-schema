@@ -1,11 +1,16 @@
-{-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
+{-# LANGUAGE
+    FlexibleInstances
+  , TypeSynonymInstances
+  #-}
 -- | Types for defining JSON schemas.
 module Data.JSON.Schema.Types where
 
 import Data.Maybe
 import Data.Proxy
 import Data.Text (Text)
+import Data.Vector (Vector)
 import Data.Word (Word32)
+import qualified Data.Vector as V
 
 -- | A schema is any JSON value.
 type Schema = Value
@@ -60,3 +65,6 @@ instance JSONSchema a => JSONSchema (Maybe a) where
 
 instance JSONSchema a => JSONSchema [a] where
   schema = Array 0 (-1) False . schema . fmap head
+
+instance JSONSchema a => JSONSchema (Vector a) where
+  schema = Array 0 (-1) False . schema . fmap V.head
