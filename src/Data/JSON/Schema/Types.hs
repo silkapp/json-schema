@@ -7,10 +7,12 @@ module Data.JSON.Schema.Types where
 
 import Data.Maybe
 import Data.Proxy
+import Data.String
 import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Word (Word32)
-import qualified Data.Vector as V
+import qualified Data.HashMap.Strict as HS
+import qualified Data.Vector         as V
 
 -- | A schema is any JSON value.
 type Schema = Value
@@ -68,3 +70,6 @@ instance JSONSchema a => JSONSchema [a] where
 
 instance JSONSchema a => JSONSchema (Vector a) where
   schema = Array 0 (-1) False . schema . fmap V.head
+
+instance (IsString k, JSONSchema v) => JSONSchema (HS.HashMap k v) where
+  schema = Object . (: []) . Field "key" False . schema . fmap (head . HS.elems)
