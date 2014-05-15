@@ -1,31 +1,37 @@
-Name:                json-schema
-Version:             0.4
-Synopsis:            Types and type classes for defining JSON schemas.
-Description:         Types and type classes for defining JSON schemas.
-License:             BSD3
-License-file:        LICENSE
-Author:              Silk
-Maintainer:          code@silk.co
-Category:            Data
-Build-type:          Simple
-Cabal-version:       >=1.6
+name:                json-schema
+version:             0.4
+synopsis:            Types and type classes for defining JSON schemas.
+description:         Types and type classes for defining JSON schemas.
+license:             BSD3
+license-file:        LICENSE
+author:              Silk
+maintainer:          code@silk.co
+category:            Data
+build-type:          Simple
+cabal-version:       >=1.6
 
-Library
-  Hs-Source-Dirs:    src
-  Exposed-Modules:   Data.JSON.Schema
-                   , Data.JSON.Schema.Combinators
-                   , Data.JSON.Schema.Generic
-                   , Data.JSON.Schema.Types
-  Build-Depends:     base == 4.*
-                   , aeson >= 0.6 && < 0.8
-                   , containers >= 0.3 && < 0.6
-                   , generic-aeson == 0.1.*
-                   , generic-deriving == 1.6.*
-                   , tagged >= 0.2 && < 0.8
-                   -- No bounds, since we only use the Text type.
-                   , text
-  Ghc-Options:       -Wall
+extra-source-files:
+  LICENSE
+  README.md
 
-Source-repository head
-  Type:              Git
-  Location:          https://github.com/silkapp/json-schema.git
+source-repository head
+  type:              git
+  location:          https://github.com/silkapp/json-schema.git
+
+library
+  ghc-options:       -Wall
+  hs-source-dirs:    src
+  exposed-modules:
+    Data.JSON.Schema
+    Data.JSON.Schema.Combinators
+    Data.JSON.Schema.Generic
+    Data.JSON.Schema.Types
+  build-depends:
+      base == 4.*
+    , aeson >= 0.6 && < 0.8
+    , containers >= 0.3 && < 0.6
+    , generic-aeson == 0.1.*
+    , generic-deriving == 1.6.*
+    , tagged >= 0.2 && < 0.8
+    -- No bounds, since we only use the Text type.
+    , text
