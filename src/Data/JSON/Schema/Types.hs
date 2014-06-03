@@ -11,7 +11,8 @@ import Data.String
 import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Word (Word32)
-import qualified Data.HashMap.Strict as HS
+import qualified Data.HashMap.Strict as H
+import qualified Data.Map            as M
 import qualified Data.Vector         as V
 
 -- | A schema is any JSON value.
@@ -21,6 +22,7 @@ type Schema = Value
 data Value =
     Choice [Value] -- ^ A choice of multiple values, e.g. for sum types.
   | Object [Field] -- ^ A JSON object.
+  | Map    Value   -- ^ A JSON object with arbitrary keys.
   | Array Int Int Bool Value -- ^ An array. The integers represent the
                              -- lower and upper bound of the array
                              -- size. The value -1 indicates no bound.
@@ -71,5 +73,8 @@ instance JSONSchema a => JSONSchema [a] where
 instance JSONSchema a => JSONSchema (Vector a) where
   schema = Array 0 (-1) False . schema . fmap V.head
 
-instance (IsString k, JSONSchema v) => JSONSchema (HS.HashMap k v) where
-  schema = Object . (: []) . Field "key" False . schema . fmap (head . HS.elems)
+instance (IsString k, JSONSchema v) => JSONSchema (M.Map k v) where
+  schema = Map . schema . fmap (head . M.elems)
+
+instance (IsString k, JSONSchema v) => JSONSchema (H.HashMap k v) where
+  schema = Map . schema . fmap (head . H.elems)
