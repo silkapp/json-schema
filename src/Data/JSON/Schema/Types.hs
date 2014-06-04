@@ -37,6 +37,7 @@ data Value =
                     -- upper bound on the value. The value -1
                     -- indicates no bound.
   | Null
+  | Any
   deriving (Eq, Show)
 
 -- | A field in an object.
