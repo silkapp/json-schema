@@ -1,5 +1,5 @@
 name:                json-schema
-version:             0.4
+version:             0.5
 synopsis:            Types and type classes for defining JSON schemas.
 description:         Types and type classes for defining JSON schemas.
 license:             BSD3
@@ -11,6 +11,7 @@ build-type:          Simple
 cabal-version:       >=1.6
 
 extra-source-files:
+  CHANGELOG.md
   LICENSE
   README.md
 
