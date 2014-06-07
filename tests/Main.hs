@@ -40,7 +40,7 @@ instance JSONSchema Record where schema = gSchema
 case_record = do
   eq (unsafeParse "{\"field\":1}"          , Right (Record { field = 1 }))
      (toJSON Record { field = 1 }, encDec Record { field = 1 })
-  eq (S.Object [S.Field {S.key = "field", S.required = True, S.content = S.Number 0 (-1)}])
+  eq (S.Object [S.Field {S.key = "field", S.required = True, S.content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy Record))
 
 data RecordTwoFields = D { d1 :: Int, d2 :: String } deriving (Generic, Show, Eq)
@@ -50,7 +50,7 @@ instance JSONSchema RecordTwoFields where schema = gSchema
 case_recordWithFields = do
   eq (unsafeParse "{\"d1\":1,\"d2\":\"aap\"}"  , Right (D {d1 = 1, d2 = "aap"}))
      (toJSON D { d1 = 1, d2 = "aap" }, encDec D { d1 = 1, d2 = "aap" })
-  eq (S.Object [Field {key = "d1", required = True, content = S.Number 0 (-1)},Field {key = "d2", required = True, content = S.Value 0 (-1)}])
+  eq (S.Object [Field {key = "d1", required = True, content = S.Number S.unbounded}, Field {key = "d2", required = True, content = S.Value S.unbounded}])
      (schema (Proxy :: Proxy RecordTwoFields))
 
 data E = E Int deriving (Generic, Show, Eq)
@@ -60,7 +60,7 @@ instance JSONSchema E where schema = gSchema
 case_constructorOneField = do
   eq (unsafeParse "1"        , Right (E 1))
      (toJSON (E 1) , encDec (E 1))
-  eq (S.Number 0 (-1))
+  eq (S.Number S.unbounded)
      (schema (Proxy :: Proxy E))
 
 data F = F Int String deriving (Generic, Show, Eq)
@@ -70,7 +70,7 @@ instance JSONSchema F where schema = gSchema
 case_constructorWithFields = do
   eq (unsafeParse "[1,\"aap\"]",Right (F 1 "aap"))
      (toJSON (F 1 "aap"), encDec (F 1 "aap"))
-  eq (S.Tuple [S.Number 0 (-1),S.Value 0 (-1)])
+  eq (S.Tuple [S.Number S.unbounded, S.Value S.unbounded])
      (schema (Proxy :: Proxy F))
 
 data G = G1 Int | G2 String deriving (Generic, Show, Eq)
@@ -80,7 +80,7 @@ instance JSONSchema G where schema = gSchema
 case_sumConstructorsWithField = do
   eq (unsafeParse "{\"g1\":1}",unsafeParse "{\"g2\":\"aap\"}",Right (G1 1),Right (G2 "aap"))
      (toJSON (G1 1), toJSON (G2 "aap"), encDec (G1 1), encDec (G2 "aap"))
-  eq (S.Choice [S.Object [Field {key = "g1", required = True, content = S.Number 0 (-1)}],S.Object [Field {key = "g2", required = True, content = S.Value 0 (-1)}]])
+  eq (S.Choice [S.Object [Field {key = "g1", required = True, content = S.Number S.unbounded}],S.Object [Field {key = "g2", required = True, content = S.Value S.unbounded}]])
      (schema (Proxy :: Proxy G))
 
 data H = H1 { h1 :: Int } | H2 { h2 :: String } deriving (Generic, Show, Eq)
@@ -90,7 +90,7 @@ instance JSONSchema H where schema = gSchema
 case_sumRecord = do
   eq (unsafeParse "{\"h1\":{\"h1\":1}}",unsafeParse "{\"h2\":{\"h2\":\"aap\"}}",Right (H1 {h1 = 1}),Right (H2 {h2 = "aap"}))
      (toJSON (H1 1), toJSON (H2 "aap"), encDec (H1 1), encDec (H2 "aap"))
-  eq (S.Choice [S.Object [Field {key = "h1", required = True, content = S.Object [Field {key = "h1", required = True, content = S.Number 0 (-1)}]}],S.Object [Field {key = "h2", required = True, content = S.Object [Field {key = "h2", required = True, content = S.Value 0 (-1)}]}]])
+  eq (S.Choice [S.Object [Field {key = "h1", required = True, content = S.Object [Field {key = "h1", required = True, content = S.Number S.unbounded}]}],S.Object [Field {key = "h2", required = True, content = S.Object [Field {key = "h2", required = True, content = S.Value S.unbounded}]}]])
      (schema (Proxy :: Proxy H))
 
 data J = J1 { j1 :: Int, j2 :: String } | J2 deriving (Generic, Show, Eq)
@@ -100,7 +100,7 @@ instance JSONSchema J where schema = gSchema
 case_sumRecordConstructorWithoutFields = do
   eq (unsafeParse "{\"j1\":{\"j1\":1,\"j2\":\"aap\"}}",unsafeParse "{\"j2\":{}}",Right (J1 {j1 = 1, j2 = "aap"}),Right J2)
      (toJSON (J1 1 "aap"), toJSON J2, encDec (J1 1 "aap"), encDec J2)
-  eq (S.Choice [S.Object [Field {key = "j1", required = True, content = S.Object [Field {key = "j1", required = True, content = S.Number 0 (-1)},Field {key = "j2", required = True, content = S.Value 0 (-1)}]}],S.Object [Field {key = "j2", required = True, content = S.Object []}]])
+  eq (S.Choice [S.Object [Field {key = "j1", required = True, content = S.Object [Field {key = "j1", required = True, content = S.Number S.unbounded},Field {key = "j2", required = True, content = S.Value S.unbounded}]}],S.Object [Field {key = "j2", required = True, content = S.Object []}]])
      (schema (Proxy :: Proxy J))
 
 data L = L1 | L2 Int String deriving (Generic, Show, Eq)
@@ -110,7 +110,7 @@ instance JSONSchema L where schema = gSchema
 case_sumConstructorWithoutFieldsConstructorWithFields = do
   eq (unsafeParse "{\"l1\":{}}",unsafeParse "{\"l2\":[1,\"aap\"]}",Right L1,Right (L2 1 "aap"))
      (toJSON L1, toJSON (L2 1 "aap"), encDec L1, encDec (L2 1 "aap"))
-  eq (S.Choice [S.Object [Field {key = "l1", required = True, content = S.Object []}],S.Object [Field {key = "l2", required = True, content = S.Tuple [S.Number 0 (-1),S.Value 0 (-1)]}]])
+  eq (S.Choice [S.Object [Field {key = "l1", required = True, content = S.Object []}],S.Object [Field {key = "l2", required = True, content = S.Tuple [S.Number S.unbounded, S.Value S.unbounded]}]])
      (schema (Proxy :: Proxy L))
 
 data M = M1 | M2 Int M deriving (Generic, Show, Eq)
@@ -141,7 +141,7 @@ instance JSONSchema O where schema = gSchema
 case_recordListField = do
   eq (unsafeParse "{\"o\":[1,2,3]}",Right (O {o = [1,2,3]}))
      (toJSON (O [1,2,3]), encDec (O [1,2,3]))
-  eq (S.Object [Field {key = "o", required = True, content = S.Array 0 (-1) False (S.Number 0 (-1))}])
+  eq (S.Object [Field {key = "o", required = True, content = S.Array S.unbounded False (S.Number S.unbounded)}])
      (schema (Proxy :: Proxy O))
 
 data P = P [Int] deriving (Generic, Show, Eq)
@@ -151,7 +151,7 @@ instance JSONSchema P where schema = gSchema
 case_constructorListField = do
   eq (unsafeParse "[1,2,3]",Right (P [1,2,3]))
      (toJSON (P [1,2,3]), encDec (P [1,2,3]))
-  eq (S.Array 0 (-1) False (S.Number 0 (-1)))
+  eq (S.Array S.unbounded False (S.Number S.unbounded))
      (schema (Proxy :: Proxy P))
 
 data Q = Q Int Int Int deriving (Generic, Show, Eq)
@@ -161,7 +161,7 @@ instance JSONSchema Q where schema = gSchema
 case_ConstructorSameTypedFields = do
   eq (unsafeParse "[1,2,3]",Right (Q 1 2 3))
      (toJSON (Q 1 2 3), encDec (Q 1 2 3))
-  eq (S.Tuple [S.Number 0 (-1),S.Number 0 (-1),S.Number 0 (-1)])
+  eq (S.Tuple [S.Number S.unbounded, S.Number S.unbounded, S.Number S.unbounded])
      (schema (Proxy :: Proxy Q))
 
 data T = T { r1 :: Maybe Int } deriving (Generic, Show, Eq)
@@ -171,7 +171,7 @@ instance JSONSchema T where schema = gSchema
 case_RecordMaybeField = do
   eq (unsafeParse "{}", unsafeParse "{\"r1\":1}",Right (T {r1 = Nothing}),Right (T {r1 = Just 1}))
      (toJSON (T Nothing), toJSON (T (Just 1)), encDec (T Nothing), encDec (T (Just 1)))
-  eq (S.Object [Field {key = "r1", required = False, content = S.Number 0 (-1)}])
+  eq (S.Object [Field {key = "r1", required = False, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy T))
 
 data V = V1 | V2 | V3 deriving (Generic, Show, Eq)
@@ -191,7 +191,7 @@ instance JSONSchema W where schema = gSchema
 case_recordWithUnderscoredFields = do
   eq (unsafeParse "{\"underscore1\":1,\"underscore2\":2}",Right (W {underscore1_ = 1, _underscore2 = 2}))
      (toJSON (W 1 2), encDec (W 1 2))
-  eq (S.Object [Field {key = "underscore1_", required = True, content = S.Number 0 (-1)},Field {key = "_underscore2", required = True, content = S.Number 0 (-1)}])
+  eq (S.Object [Field {key = "underscore1_", required = True, content = S.Number S.unbounded},Field {key = "_underscore2", required = True, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy W))
 
 -- Helpers
