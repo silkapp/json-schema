@@ -9,7 +9,7 @@ module Main (main) where
 
 import Data.Aeson hiding (Result)
 import Data.Proxy
-import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..), Value (Foo))
+import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
 import qualified Data.JSON.Schema as S
 import Data.Aeson.Parser
 import Data.Attoparsec.Lazy
