@@ -51,6 +51,7 @@ test-suite json-schema-generic-aeson-tests
     , attoparsec
     , bytestring >= 0.10 && < 0.12
     , generic-aeson
+    , tagged >= 0.2 && < 0.8
     , json-schema
     , tasty
     , tasty-hunit
