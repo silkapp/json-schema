@@ -34,15 +34,15 @@ field k r v = Object [Field k r v]
 
 -- | An unbounded string.
 value :: Schema
-value = Value 0 (-1)
+value = Value unbounded
 
 -- | An unbounded number.
 number :: Schema
-number = Number 0 (-1)
+number = Number unbounded
 
 -- | An unbounded array with non-unique values.
 array :: Schema -> Schema
-array = Array 0 (-1) False
+array = Array unbounded False
 
 -- | Add a field to an object, or tuple if passed a non-object.
 addField :: String -> Bool -> Schema -> SchemaC
