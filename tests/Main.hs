@@ -11,6 +11,7 @@ import Data.Aeson hiding (Result)
 import Data.Proxy
 import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
 import qualified Data.JSON.Schema as S
+import qualified Data.Text as T
 import Data.Aeson.Parser
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
