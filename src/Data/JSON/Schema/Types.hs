@@ -14,21 +14,19 @@ import Data.Word (Word32)
 import qualified Data.HashMap.Strict as H
 import qualified Data.Map            as M
 import qualified Data.Vector         as V
-
--- | A schema is any JSON value.
-type Schema = Value
+import qualified Data.Aeson.Types    as Aeson
 
 -- | A schema for a JSON value.
-data Value =
-    Choice [Value] -- ^ A choice of multiple values, e.g. for sum types.
-  | Object [Field] -- ^ A JSON object.
-  | Map    Value   -- ^ A JSON object with arbitrary keys.
-  | Array Int Int Bool Value -- ^ An array. The integers represent the
-                             -- lower and upper bound of the array
-                             -- size. The value -1 indicates no bound.
-                             -- The boolean denotes whether items have
-                             -- to unique.
-  | Tuple [Value]   -- ^ A fixed-length tuple of different values.
+data Schema =
+    Choice [Schema] -- ^ A choice of multiple values, e.g. for sum types.
+  | Object [Field]  -- ^ A JSON object.
+  | Map    Schema   -- ^ A JSON object with arbitrary keys.
+  | Array Int Int Bool Schema -- ^ An array. The integers represent the
+                              -- lower and upper bound of the array
+                              -- size. The value -1 indicates no bound.
+                              -- The boolean denotes whether items have
+                              -- to unique.
+  | Tuple [Schema]  -- ^ A fixed-length tuple of different values.
   | Value Int Int   -- ^ A string. The integers denote the lower and
                     -- upper bound of the length of the string. The
                     -- value -1 indicates no bound.
@@ -36,6 +34,7 @@ data Value =
   | Number Int Int  -- ^ A number. The integers denote the lower and
                     -- upper bound on the value. The value -1
                     -- indicates no bound.
+  | Constant Aeson.Value
   | Null
   | Any
   deriving (Eq, Show)

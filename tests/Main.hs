@@ -30,7 +30,7 @@ instance JSONSchema SingleCons where schema = gSchema
 case_constructorWithoutFields = do
   eq (unsafeParse "\"singleCons\"", Right SingleCons)
      (toJSON SingleCons , encDec SingleCons)
-  eq (S.Value 0 (-1))
+  eq (S.Constant (A.String "singleCons"))
      (schema (Proxy :: Proxy SingleCons))
 
 data Record = Record { field :: Int } deriving (Generic, Show, Eq)
@@ -181,7 +181,7 @@ instance JSONSchema V where schema = gSchema
 case_constructorsWithoutFields = do
   eq (unsafeParse "\"v1\"",unsafeParse "\"v2\"",Right V1,Right V2)
      (toJSON V1, toJSON V2, encDec V1, encDec V2)
-  eq (S.Choice [S.Value 0 (-1),S.Value 0 (-1),S.Value 0 (-1)])
+  eq (S.Choice [S.Constant (A.String "v1"), S.Constant (A.String "v2"), S.Constant (A.String "v3")])
      (schema (Proxy :: Proxy V))
 
 data W = W { underscore1_ :: Int, _underscore2 :: Int } deriving (Generic, Show, Eq)

@@ -21,9 +21,11 @@ import Data.Proxy
 import GHC.Generics
 import Generics.Deriving.ConNames
 import Generics.Generic.IsEnum
+import qualified Data.Aeson.Types as Aeson
+import Data.Text (pack)
 
 class GJSONSCHEMA f where
-  gSchema' :: Bool -> Bool -> Proxy (f a) -> Schema
+  gSchema' :: Bool -> [String] -> Proxy (f a) -> Schema
 
 -- Recursive positions disabled for now, it causes infintite data structures. This is a problem to be solved!
 {-
@@ -41,9 +43,9 @@ instance GJSONSCHEMA U1 where
   gSchema' _ _ _ = empty
 
 instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :+: g) where
-  gSchema' mc enm p =
-        gSchema' mc enm (gL <$> p)
-    <|> gSchema' mc enm (gR <$> p)
+  gSchema' enm names p =
+        gSchema' enm names (gL <$> p)
+    <|> gSchema' enm names (gR <$> p)
     where
       gL :: (f :+: g) r -> f r
       gL _ = undefined
@@ -56,19 +58,27 @@ gFst (f :*: _) = f
 gSnd :: (f :*: g) r -> g r
 gSnd (_ :*: g) = g
 
+pv :: Proxy a -> a
+pv _ = undefined
+
+toConstant :: String -> Schema
+toConstant = Constant . Aeson.String . pack . firstLetterToLower
+
 instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :*: g) where
-  gSchema' mc enm p = gSchema' mc enm (gFst <$> p) `merge` gSchema' mc enm (gSnd <$> p)
+  gSchema' enm names p = gSchema' enm names (gFst <$> p) `merge` gSchema' enm names (gSnd <$> p)
 
 instance (Constructor c, GJSONSCHEMA f) => GJSONSCHEMA (M1 C c f) where
-  gSchema' _  True = const $ Value 0 (-1)
-  gSchema' mc enm = wrap . gSchema' mc enm . fmap unM1
+  gSchema' True _ = toConstant . conName . pv
     where
-      wrap = if mc
+  gSchema' enm names = wrap . gSchema' enm names . fmap unM1
+    where
+      wrap = if multipleConstructors names
              then field (firstLetterToLower $ conName (undefined :: M1 C c f p)) True
              else id
 
 instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
-  gSchema' mc enm = gSchema' mc enm . fmap unM1
+  gSchema' True names p | multipleConstructors names = const (Choice . fmap toConstant $ names) $ p
+  gSchema' enm names p = gSchema' enm names . fmap unM1 $ p
 
 firstLetterToLower :: String -> String
 firstLetterToLower ""     = ""
@@ -82,17 +92,15 @@ instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
   gSchema' _ _ _ = field (selName (undefined :: M1 S c f p)) False $ Value 0 (-1)
 
 instance (Selector c, GJSONSCHEMA f) => GJSONSCHEMA (M1 S c f) where
-  gSchema' mc enm = wrap . gSchema' mc enm . fmap unM1
+  gSchema' enm names = wrap . gSchema' enm names . fmap unM1
     where
       wrap = case selName (undefined :: M1 S c f p) of
         "" -> id
         s -> field s True
 
-multipleConstructors :: (Generic a, ConNames (Rep a)) => Proxy a -> Bool
-multipleConstructors = (> 1) . length . conNames . pv
-  where pv :: Proxy a -> a
-        pv _ = undefined
+multipleConstructors :: [String] -> Bool
+multipleConstructors = (> 1) . length
 
 -- | Derive a JSON schema for types with an instance of 'Generic'.
 gSchema :: (Generic a, GJSONSCHEMA (Rep a), ConNames (Rep a), GIsEnum (Rep a)) => Proxy a -> Schema
-gSchema p = gSchema' (multipleConstructors p) (isEnum p) (fmap from p)
+gSchema p = gSchema' (isEnum p) ((conNames . pv) p) (fmap from p)
