@@ -1,6 +1,7 @@
 {-# LANGUAGE
     FlexibleInstances
   , TypeSynonymInstances
+  , OverloadedStrings
   #-}
 -- | Types for defining JSON schemas.
 module Data.JSON.Schema.Types where
@@ -44,7 +45,7 @@ data Bound = Bound (Maybe Int) (Maybe Int) deriving (Eq, Show)
 unbounded = Bound Nothing Nothing
 
 -- | A field in an object.
-data Field = Field { key :: String, required :: Bool, content :: Schema } deriving (Eq, Show)
+data Field = Field { key :: Text, required :: Bool, content :: Schema } deriving (Eq, Show)
 
 -- | Class representing JSON schemas
 class JSONSchema a where

@@ -2,6 +2,7 @@
 module Data.JSON.Schema.Combinators where
 
 import Data.JSON.Schema.Types
+import Data.Text (Text)
 
 -- | A schema combinator.
 type SchemaC = Schema -> Schema
@@ -29,7 +30,7 @@ merge (Object f1) (Object f2) = Object $ f1 ++ f2
 merge v1          v2          = v1 <+> v2
 
 -- | Create an object with a single field.
-field :: String -> Bool -> Schema -> Schema
+field :: Text -> Bool -> Schema -> Schema
 field k r v = Object [Field k r v]
 
 -- | An unbounded string.
@@ -45,12 +46,12 @@ array :: Schema -> Schema
 array = Array unbounded False
 
 -- | Add a field to an object, or tuple if passed a non-object.
-addField :: String -> Bool -> Schema -> SchemaC
+addField :: Text -> Bool -> Schema -> SchemaC
 addField k r v = merge $ field k r v
 
 -- | Add multiple fields to an object, or tuple if passed a
 -- non-object.
-addFields :: [(String, Bool, Schema)] -> SchemaC
+addFields :: [(Text, Bool, Schema)] -> SchemaC
 addFields = flip $ foldr (\(k, r, v) -> addField k r v)
 
 -- | An empty object.
