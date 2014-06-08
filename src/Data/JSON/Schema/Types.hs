@@ -22,18 +22,18 @@ data Schema =
     Choice [Schema] -- ^ A choice of multiple values, e.g. for sum types.
   | Object [Field]  -- ^ A JSON object.
   | Map    Schema   -- ^ A JSON object with arbitrary keys.
-  | Array LengthBound Bool Schema -- ^ An array. The integers represent the
+  | Array LengthBound Bool Schema -- ^ An array. The LengthBound represent the
                               -- lower and upper bound of the array
-                              -- size. The value -1 indicates no bound.
+                              -- size. The value 'unboundedLength' indicates no bound.
                               -- The boolean denotes whether items have
                               -- to unique.
   | Tuple [Schema]  -- ^ A fixed-length tuple of different values.
-  | Value LengthBound     -- ^ A string. The integers denote the lower and
+  | Value LengthBound     -- ^ A string. The LengthBound denote the lower and
                     -- upper bound of the length of the string. The
-                    -- value -1 indicates no bound.
+                    -- value 'unboundedLength' indicates no bound.
   | Boolean
-  | Number Bound    -- ^ A number. The integers denote the lower and
-                    -- upper bound on the value. The value -1
+  | Number Bound    -- ^ A number. The Bound denote the lower and
+                    -- upper bound on the value. The value 'unbounded'
                     -- indicates no bound.
   | Constant Aeson.Value
   | Null
