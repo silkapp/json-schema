@@ -22,13 +22,13 @@ data Schema =
     Choice [Schema] -- ^ A choice of multiple values, e.g. for sum types.
   | Object [Field]  -- ^ A JSON object.
   | Map    Schema   -- ^ A JSON object with arbitrary keys.
-  | Array Bound Bool Schema -- ^ An array. The integers represent the
+  | Array LengthBound Bool Schema -- ^ An array. The integers represent the
                               -- lower and upper bound of the array
                               -- size. The value -1 indicates no bound.
                               -- The boolean denotes whether items have
                               -- to unique.
   | Tuple [Schema]  -- ^ A fixed-length tuple of different values.
-  | Value Bound     -- ^ A string. The integers denote the lower and
+  | Value LengthBound     -- ^ A string. The integers denote the lower and
                     -- upper bound of the length of the string. The
                     -- value -1 indicates no bound.
   | Boolean
@@ -40,9 +40,13 @@ data Schema =
   | Any
   deriving (Eq, Show)
 
-data Bound = Bound (Maybe Int) (Maybe Int) deriving (Eq, Show)
+-- | A type for bounds on number domains. Use Nothing when no lower or upper bound makes sense
+data Bound = Bound { lower :: Maybe Int, upper :: Maybe Int } deriving (Eq, Show)
+-- | A type for bounds on lengths for strings and arrays. Use Nothing when no lower or upper bound makes sense
+data LengthBound = LengthBound { lowerLength :: Maybe Int, upperLength :: Maybe Int } deriving (Eq, Show)
 
 unbounded = Bound Nothing Nothing
+unboundedLength = LengthBound Nothing Nothing
 
 -- | A field in an object.
 data Field = Field { key :: Text, required :: Bool, content :: Schema } deriving (Eq, Show)
@@ -67,16 +71,16 @@ instance JSONSchema Bool where
   schema _ = Boolean
 
 instance JSONSchema Text where
-  schema _ = Value unbounded
+  schema _ = Value unboundedLength
 
 instance JSONSchema a => JSONSchema (Maybe a) where
   schema p = Choice [Object [Field "Just" True $ schema $ fmap fromJust p], Object [Field "Nothing" True Null]]
 
 instance JSONSchema a => JSONSchema [a] where
-  schema = Array unbounded False . schema . fmap head
+  schema = Array unboundedLength False . schema . fmap head
 
 instance JSONSchema a => JSONSchema (Vector a) where
-  schema = Array unbounded False . schema . fmap V.head
+  schema = Array unboundedLength False . schema . fmap V.head
 
 instance (IsString k, JSONSchema v) => JSONSchema (M.Map k v) where
   schema = Map . schema . fmap (head . M.elems)

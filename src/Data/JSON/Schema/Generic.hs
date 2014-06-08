@@ -39,7 +39,7 @@ instance JSONSchema c => GJSONSCHEMA (K1 i c) where
   gSchema' _ _ = schema . fmap unK1
 
 instance GJSONSCHEMA (K1 i String) where
-  gSchema' _ _ _ = Value unbounded
+  gSchema' _ _ _ = Value unboundedLength
 
 instance GJSONSCHEMA U1 where
   gSchema' _ _ _ = empty
@@ -91,7 +91,7 @@ instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) whe
 
 -- TODO This instance does not correspond to the generic-aeson representation for Maybe
 instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
-  gSchema' _ _ _ = field ((pack . selName) (undefined :: M1 S c f p)) False $ Value unbounded
+  gSchema' _ _ _ = field ((pack . selName) (undefined :: M1 S c f p)) False $ Value unboundedLength
 
 instance (Selector c, GJSONSCHEMA f) => GJSONSCHEMA (M1 S c f) where
   gSchema' enm names = wrap . gSchema' enm names . fmap unM1
