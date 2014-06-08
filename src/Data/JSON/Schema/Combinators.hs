@@ -35,7 +35,7 @@ field k r v = Object [Field k r v]
 
 -- | An unbounded string.
 value :: Schema
-value = Value unbounded
+value = Value unboundedLength
 
 -- | An unbounded number.
 number :: Schema
@@ -43,7 +43,7 @@ number = Number unbounded
 
 -- | An unbounded array with non-unique values.
 array :: Schema -> Schema
-array = Array unbounded False
+array = Array unboundedLength False
 
 -- | Add a field to an object, or tuple if passed a non-object.
 addField :: Text -> Bool -> Schema -> SchemaC
