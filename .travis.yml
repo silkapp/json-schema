@@ -1,7 +1,8 @@
 language: haskell
 install:
-  - "cabal install --dry-run -v3"
-  - "travis_retry cabal install --force-reinstalls"
+  - "cabal install --enable-tests --dry-run -v3"
+  - "travis_retry cabal install --force-reinstalls --enable-tests"
+  - "cabal test"
 notifications:
   email:
     recipients:
