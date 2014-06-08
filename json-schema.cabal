@@ -52,6 +52,7 @@ test-suite json-schema-generic-aeson-tests
     , bytestring >= 0.10 && < 0.12
     , generic-aeson
     , json-schema
+    , tagged >= 0.2 && < 0.8
     , tasty
     , tasty-hunit
     , tasty-th
