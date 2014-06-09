@@ -12,6 +12,8 @@ module Data.JSON.Schema.Combinators
   , addFields
   , empty
   , enum
+  , unbounded
+  , unboundedLength
   ) where
 
 import Data.JSON.Schema.Types
