@@ -1,5 +1,17 @@
 -- | Combinators for creating JSON schemas.
-module Data.JSON.Schema.Combinators where
+module Data.JSON.Schema.Combinators
+  ( SchemaC
+  , (<|>)
+  , (<+>)
+  , merge
+  , field
+  , value
+  , number
+  , array
+  , addField
+  , addFields
+  , empty
+  ) where
 
 import Data.JSON.Schema.Types
 import Data.Text (Text)

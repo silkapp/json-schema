@@ -4,7 +4,15 @@
   , TypeSynonymInstances
   #-}
 -- | Types for defining JSON schemas.
-module Data.JSON.Schema.Types where
+module Data.JSON.Schema.Types
+  ( JSONSchema (..)
+  , Schema (..)
+  , Field (..)
+  , Bound (..)
+  , LengthBound (..)
+  , unbounded
+  , unboundedLength
+  ) where
 
 import Data.Maybe
 import Data.Proxy
@@ -45,6 +53,7 @@ data Bound = Bound
   { lower :: Maybe Int
   , upper :: Maybe Int
   } deriving (Eq, Show)
+
 -- | A type for bounds on lengths for strings and arrays. Use Nothing when no lower or upper bound makes sense
 data LengthBound = LengthBound
   { lowerLength :: Maybe Int
