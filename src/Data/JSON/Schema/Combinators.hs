@@ -11,10 +11,12 @@ module Data.JSON.Schema.Combinators
   , addField
   , addFields
   , empty
+  , enum
   ) where
 
 import Data.JSON.Schema.Types
 import Data.Text (Text)
+import qualified Data.Aeson as Aeson
 
 -- | A schema combinator.
 type SchemaC = Schema -> Schema
@@ -69,3 +71,7 @@ addFields = flip $ foldr (\(k, r, v) -> addField k r v)
 -- | An empty object.
 empty :: Schema
 empty = Object []
+
+-- | A choice between constant values.
+enum :: [Aeson.Value] -> Schema
+enum = Choice . map Constant
