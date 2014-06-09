@@ -20,11 +20,12 @@ import Data.JSON.Schema.Combinators
 import Data.JSON.Schema.Types
 import Data.Maybe
 import Data.Proxy
-import Data.Text (pack, Text, cons, uncons)
+import Data.Text (Text)
 import GHC.Generics
 import Generics.Deriving.ConNames
 import Generics.Generic.IsEnum
 import qualified Data.Aeson.Types as Aeson
+import qualified Data.Text as T
 
 class GJSONSCHEMA f where
   gSchema' :: Bool -> [Text] -> Proxy (f a) -> Schema
@@ -70,12 +71,12 @@ instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :*: g) where
   gSchema' enm names p = gSchema' enm names (gFst <$> p) `merge` gSchema' enm names (gSnd <$> p)
 
 instance (Constructor c, GJSONSCHEMA f) => GJSONSCHEMA (M1 C c f) where
-  gSchema' True _ = toConstant . pack . conName . pv
+  gSchema' True _ = toConstant . T.pack . conName . pv
     where
   gSchema' enm names = wrap . gSchema' enm names . fmap unM1
     where
       wrap = if multipleConstructors names
-             then field (firstLetterToLower . pack $ conName (undefined :: M1 C c f p)) True
+             then field (firstLetterToLower . T.pack $ conName (undefined :: M1 C c f p)) True
              else id
 
 instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
@@ -83,21 +84,21 @@ instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
   gSchema' enm names p = gSchema' enm names . fmap unM1 $ p
 
 firstLetterToLower :: Text -> Text
-firstLetterToLower m = case uncons m of
+firstLetterToLower m = case T.uncons m of
   Nothing      -> ""
-  Just (l, ls) -> cons (toLower l) ls
+  Just (l, ls) -> T.cons (toLower l) ls
 
 instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) where
-  gSchema' _ _ = field ((pack . selName) (undefined :: M1 S c f p)) False . schema . fmap (fromJust . unK1 . unM1)
+  gSchema' _ _ = field ((T.pack . selName) (undefined :: M1 S c f p)) False . schema . fmap (fromJust . unK1 . unM1)
 
 -- TODO This instance does not correspond to the generic-aeson representation for Maybe
 instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
-  gSchema' _ _ _ = field ((pack . selName) (undefined :: M1 S c f p)) False $ Value unboundedLength
+  gSchema' _ _ _ = field ((T.pack . selName) (undefined :: M1 S c f p)) False $ Value unboundedLength
 
 instance (Selector c, GJSONSCHEMA f) => GJSONSCHEMA (M1 S c f) where
   gSchema' enm names = wrap . gSchema' enm names . fmap unM1
     where
-      wrap = case (pack . selName) (undefined :: M1 S c f p) of
+      wrap = case (T.pack . selName) (undefined :: M1 S c f p) of
         "" -> id
         s -> field s True
 
@@ -106,4 +107,4 @@ multipleConstructors = (> 1) . length
 
 -- | Derive a JSON schema for types with an instance of 'Generic'.
 gSchema :: (Generic a, GJSONSCHEMA (Rep a), ConNames (Rep a), GIsEnum (Rep a)) => Proxy a -> Schema
-gSchema p = gSchema' (isEnum p) ((map pack . conNames . pv) p) (fmap from p)
+gSchema p = gSchema' (isEnum p) ((map T.pack . conNames . pv) p) (fmap from p)
