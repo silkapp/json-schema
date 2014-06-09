@@ -27,25 +27,27 @@ import qualified Data.Vector         as V
 
 -- | A schema for a JSON value.
 data Schema =
-    Choice [Schema] -- ^ A choice of multiple values, e.g. for sum types.
-  | Object [Field]  -- ^ A JSON object.
-  | Map    Schema   -- ^ A JSON object with arbitrary keys.
-  | Array LengthBound Bool Schema -- ^ An array. The LengthBound represent the
-                              -- lower and upper bound of the array
-                              -- size. The value 'unboundedLength' indicates no bound.
-                              -- The boolean denotes whether items have
-                              -- to unique.
-  | Tuple [Schema]  -- ^ A fixed-length tuple of different values.
-  | Value LengthBound     -- ^ A string. The LengthBound denote the lower and
-                    -- upper bound of the length of the string. The
-                    -- value 'unboundedLength' indicates no bound.
-  | Boolean
-  | Number Bound    -- ^ A number. The Bound denote the lower and
-                    -- upper bound on the value. The value 'unbounded'
-                    -- indicates no bound.
-  | Constant Aeson.Value
-  | Null
-  | Any
+    Choice [Schema]      -- ^ A choice of multiple values, e.g. for sum types.
+  | Object [Field]       -- ^ A JSON object.
+  | Map    Schema        -- ^ A JSON object with arbitrary keys.
+  | Array LengthBound Bool Schema
+                         -- ^ An array. The LengthBound represent the
+                         -- lower and upper bound of the array
+                         -- size. The value 'unboundedLength' indicates no bound.
+                         -- The boolean denotes whether items have
+                         -- to be unique.
+  | Tuple [Schema]       -- ^ A fixed-length tuple of different values.
+  | Value LengthBound    -- ^ A string. The LengthBound denote the lower and
+                         -- upper bound of the length of the string. The
+                         -- value 'unboundedLength' indicates no bound.
+  | Boolean              -- ^ A Bool.
+  | Number Bound         -- ^ A number. The Bound denote the lower and
+                         -- upper bound on the value. The value 'unbounded'
+                         -- indicates no bound.
+  | Constant Aeson.Value -- ^ A Value that never changes. Can be
+                         -- combined with Choice to create enumerables.
+  | Null                 -- ^ Only null is allowed.
+  | Any                  -- ^ Anything value is allowed.
   deriving (Eq, Show)
 
 -- | A type for bounds on number domains. Use Nothing when no lower or upper bound makes sense
