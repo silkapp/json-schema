@@ -1,7 +1,7 @@
 {-# LANGUAGE
     FlexibleInstances
-  , TypeSynonymInstances
   , OverloadedStrings
+  , TypeSynonymInstances
   #-}
 -- | Types for defining JSON schemas.
 module Data.JSON.Schema.Types where
@@ -12,10 +12,10 @@ import Data.String
 import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Word (Word32)
+import qualified Data.Aeson.Types    as Aeson
 import qualified Data.HashMap.Strict as H
 import qualified Data.Map            as M
 import qualified Data.Vector         as V
-import qualified Data.Aeson.Types    as Aeson
 
 -- | A schema for a JSON value.
 data Schema =
@@ -41,11 +41,20 @@ data Schema =
   deriving (Eq, Show)
 
 -- | A type for bounds on number domains. Use Nothing when no lower or upper bound makes sense
-data Bound = Bound { lower :: Maybe Int, upper :: Maybe Int } deriving (Eq, Show)
+data Bound = Bound
+  { lower :: Maybe Int
+  , upper :: Maybe Int
+  } deriving (Eq, Show)
 -- | A type for bounds on lengths for strings and arrays. Use Nothing when no lower or upper bound makes sense
-data LengthBound = LengthBound { lowerLength :: Maybe Int, upperLength :: Maybe Int } deriving (Eq, Show)
+data LengthBound = LengthBound
+  { lowerLength :: Maybe Int
+  , upperLength :: Maybe Int
+  } deriving (Eq, Show)
 
+unbounded :: Bound
 unbounded = Bound Nothing Nothing
+
+unboundedLength :: LengthBound
 unboundedLength = LengthBound Nothing Nothing
 
 -- | A field in an object.

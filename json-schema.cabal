@@ -57,3 +57,4 @@ test-suite json-schema-generic-aeson-tests
     , tasty
     , tasty-hunit
     , tasty-th
+    , text

@@ -8,20 +8,19 @@
 module Main (main) where
 
 import Data.Aeson hiding (Result)
-import Data.Proxy
-import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
-import qualified Data.JSON.Schema as S
-import qualified Data.Text as T
 import Data.Aeson.Parser
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
+import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
 import Data.List (intersperse)
+import Data.Proxy
 import GHC.Generics (Generic)
 import Generics.Generic.Aeson
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
+import qualified Data.JSON.Schema as S
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson

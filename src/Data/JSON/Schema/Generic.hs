@@ -20,11 +20,11 @@ import Data.JSON.Schema.Combinators
 import Data.JSON.Schema.Types
 import Data.Maybe
 import Data.Proxy
+import Data.Text (pack, Text, cons, uncons)
 import GHC.Generics
 import Generics.Deriving.ConNames
 import Generics.Generic.IsEnum
 import qualified Data.Aeson.Types as Aeson
-import Data.Text (pack, Text, cons, uncons)
 
 class GJSONSCHEMA f where
   gSchema' :: Bool -> [Text] -> Proxy (f a) -> Schema
@@ -83,10 +83,9 @@ instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
   gSchema' enm names p = gSchema' enm names . fmap unM1 $ p
 
 firstLetterToLower :: Text -> Text
-firstLetterToLower ""     = ""
-firstLetterToLower (uncons -> m) = case m of
-    Just (l, ls) -> cons (toLower l) ls
-    Nothing -> ""
+firstLetterToLower m = case uncons m of
+  Nothing      -> ""
+  Just (l, ls) -> cons (toLower l) ls
 
 instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) where
   gSchema' _ _ = field ((pack . selName) (undefined :: M1 S c f p)) False . schema . fmap (fromJust . unK1 . unM1)
