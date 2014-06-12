@@ -107,3 +107,54 @@ instance (IsString k, JSONSchema v) => JSONSchema (M.Map k v) where
 
 instance (IsString k, JSONSchema v) => JSONSchema (H.HashMap k v) where
   schema = Map . schema . fmap (head . H.elems)
+
+instance (JSONSchema a, JSONSchema b) => JSONSchema (a, b) where
+  schema s = Tuple
+    [ schema . fmap fst $ s
+    , schema . fmap snd $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c) => JSONSchema (a, b, c) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_) -> b) $ s
+    , schema . fmap (\(_,_,c) -> c) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d) => JSONSchema (a, b, c, d) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d) -> d) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e) => JSONSchema (a, b, c, d, e) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e) -> e) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f) => JSONSchema (a, b, c, d, e, f) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f) -> f) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g) => JSONSchema (a, b, c, d, e, f, g) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g) -> g) $ s
+    ]
