@@ -36,6 +36,7 @@ library
     , tagged >= 0.2 && < 0.8
     -- No bounds, since we only use the Text type.
     , text
+    , time >= 1.2 && < 1.5
     , unordered-containers == 0.2.*
     , vector == 0.10.*
 

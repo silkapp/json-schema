@@ -15,7 +15,9 @@ module Data.JSON.Schema.Types
   ) where
 
 import Data.Maybe
+import Data.Time.Clock (UTCTime)
 import Data.Proxy
+import qualified Data.Set as S
 import Data.String
 import Data.Text (Text)
 import Data.Vector (Vector)
@@ -107,6 +109,12 @@ instance (IsString k, JSONSchema v) => JSONSchema (M.Map k v) where
 
 instance (IsString k, JSONSchema v) => JSONSchema (H.HashMap k v) where
   schema = Map . schema . fmap (head . H.elems)
+
+instance JSONSchema UTCTime where
+  schema _ = Value LengthBound { lowerLength = Just 20, upperLength = Just 24 }
+
+instance JSONSchema a => JSONSchema (S.Set a) where
+  schema = schema . fmap S.toList
 
 instance (JSONSchema a, JSONSchema b) => JSONSchema (a, b) where
   schema s = Tuple
