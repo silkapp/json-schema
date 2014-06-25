@@ -15,16 +15,17 @@ module Data.JSON.Schema.Types
   ) where
 
 import Data.Maybe
-import Data.Time.Clock (UTCTime)
 import Data.Proxy
-import qualified Data.Set as S
 import Data.String
 import Data.Text (Text)
+import Data.Time.Clock (UTCTime)
 import Data.Vector (Vector)
 import Data.Word (Word32)
 import qualified Data.Aeson.Types    as Aeson
 import qualified Data.HashMap.Strict as H
 import qualified Data.Map            as M
+import qualified Data.Set            as S
+import qualified Data.Text.Lazy      as L
 import qualified Data.Vector         as V
 
 -- | A schema for a JSON value.
@@ -93,6 +94,9 @@ instance JSONSchema Bool where
   schema _ = Boolean
 
 instance JSONSchema Text where
+  schema _ = Value unboundedLength
+
+instance JSONSchema L.Text where
   schema _ = Value unboundedLength
 
 instance JSONSchema a => JSONSchema (Maybe a) where
