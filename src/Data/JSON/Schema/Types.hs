@@ -118,7 +118,7 @@ instance JSONSchema UTCTime where
   schema _ = Value LengthBound { lowerLength = Just 20, upperLength = Just 24 }
 
 instance JSONSchema a => JSONSchema (S.Set a) where
-  schema = schema . fmap S.toList
+  schema = Array unboundedLength True . schema . fmap S.findMin
 
 instance (JSONSchema a, JSONSchema b) => JSONSchema (a, b) where
   schema s = Tuple
