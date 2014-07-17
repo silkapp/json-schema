@@ -170,3 +170,127 @@ instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, 
     , schema . fmap (\(_,_,_,_,_,f,_) -> f) $ s
     , schema . fmap (\(_,_,_,_,_,_,g) -> g) $ s
     ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h) => JSONSchema (a, b, c, d, e, f, g, h) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h) -> h) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i) => JSONSchema (a, b, c, d, e, f, g, h, i) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i) -> i) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i, JSONSchema j) => JSONSchema (a, b, c, d, e, f, g, h, i, j) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i,_) -> i) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,j) -> j) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i, JSONSchema j, JSONSchema k) => JSONSchema (a, b, c, d, e, f, g, h, i, j, k) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_,_,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i,_,_) -> i) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,j,_) -> j) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,k) -> k) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i, JSONSchema j, JSONSchema k, JSONSchema l) => JSONSchema (a, b, c, d, e, f, g, h, i, j, k, l) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_,_,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_,_,_,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i,_,_,_) -> i) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,j,_,_) -> j) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,k,_) -> k) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,l) -> l) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i, JSONSchema j, JSONSchema k, JSONSchema l, JSONSchema m) => JSONSchema (a, b, c, d, e, f, g, h, i, j, k, l, m) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_,_,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_,_,_,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_,_,_,_,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i,_,_,_,_) -> i) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,j,_,_,_) -> j) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,k,_,_) -> k) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,l,_) -> l) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,_,m) -> m) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i, JSONSchema j, JSONSchema k, JSONSchema l, JSONSchema m, JSONSchema n) => JSONSchema (a, b, c, d, e, f, g, h, i, j, k, l, m, n) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_,_,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_,_,_,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_,_,_,_,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_,_,_,_,_,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i,_,_,_,_,_) -> i) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,j,_,_,_,_) -> j) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,k,_,_,_) -> k) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,l,_,_) -> l) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,_,m,_) -> m) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,_,_,n) -> n) $ s
+    ]
+
+instance (JSONSchema a, JSONSchema b, JSONSchema c, JSONSchema d, JSONSchema e, JSONSchema f, JSONSchema g, JSONSchema h, JSONSchema i, JSONSchema j, JSONSchema k, JSONSchema l, JSONSchema m, JSONSchema n, JSONSchema o) => JSONSchema (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) where
+  schema s = Tuple
+    [ schema . fmap (\(a,_,_,_,_,_,_,_,_,_,_,_,_,_,_) -> a) $ s
+    , schema . fmap (\(_,b,_,_,_,_,_,_,_,_,_,_,_,_,_) -> b) $ s
+    , schema . fmap (\(_,_,c,_,_,_,_,_,_,_,_,_,_,_,_) -> c) $ s
+    , schema . fmap (\(_,_,_,d,_,_,_,_,_,_,_,_,_,_,_) -> d) $ s
+    , schema . fmap (\(_,_,_,_,e,_,_,_,_,_,_,_,_,_,_) -> e) $ s
+    , schema . fmap (\(_,_,_,_,_,f,_,_,_,_,_,_,_,_,_) -> f) $ s
+    , schema . fmap (\(_,_,_,_,_,_,g,_,_,_,_,_,_,_,_) -> g) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,h,_,_,_,_,_,_,_) -> h) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,i,_,_,_,_,_,_) -> i) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,j,_,_,_,_,_) -> j) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,k,_,_,_,_) -> k) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,l,_,_,_) -> l) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,_,m,_,_) -> m) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,_,_,n,_) -> n) $ s
+    , schema . fmap (\(_,_,_,_,_,_,_,_,_,_,_,_,_,_,o) -> o) $ s
+    ]
