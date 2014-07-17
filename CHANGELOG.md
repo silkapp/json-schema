@@ -1,3 +1,8 @@
+## 0.6.1
+
+* Add JSONSchema instances for tuples up to length 15 (matching aeson 0.8 instances)
+* Specify uniqueness for JSONSchema instances for Set.
+
 ## 0.6
 
 Breaking changes:
