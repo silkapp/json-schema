@@ -21,9 +21,10 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
+import qualified Data.Vector as V
 
 import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
-import Data.JSON.Schema.Validate (isValid)
+import Data.JSON.Schema.Validate
 import qualified Data.JSON.Schema as S
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
@@ -226,7 +227,11 @@ valid :: forall a . (Show a, ToJSON a, FromJSON a, JSONSchema a) => a -> Asserti
 valid v = do
   case eitherDecodeV (encode v) of
     Left err -> error err
-    Right r -> assertBool ("schema validation for " ++ show v) $ isValid (schema (Proxy :: Proxy a)) r
+    Right r  -> case V.toList $ validate sch r of
+      []   -> return ()
+      errs -> assertFailure ("schema validation for " ++ show v ++ " value: " ++ show r ++ " schema: " ++ show sch ++ " errors: " ++ show errs)
+  where
+    sch = schema (Proxy :: Proxy a)
 
 encDec :: (FromJSON a, ToJSON a) => a -> Either String a
 encDec a = case (parse value . encode) a of
@@ -247,4 +252,3 @@ tests = $testGroupGenerator
 
 main :: IO ()
 main = defaultMain $ testGroup "generic-aeson" [tests]
-

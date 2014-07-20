@@ -19,23 +19,26 @@ import qualified Data.Vector         as V
 import Data.JSON.Schema (Schema)
 import qualified Data.JSON.Schema as S
 
-data Err = Err [Text] Err'
+data Err = Err (Vector Text) Err'
+  deriving (Eq, Show)
+
 data Err'
   = Mismatch Schema Value
   | BoundError S.Bound Scientific
   | LengthBoundError S.LengthBound Int
   | TupleLength Int (Vector Value)
   | MissingRequiredField Text
-  | ChoiceError [[Err]] Value
+  | ChoiceError (Vector (Vector Err)) Value
   | NonUniqueArray (Vector Value)
+  deriving (Eq, Show)
 
-newtype M a = M { unM :: RWS [Text] [Err] () a }
+newtype M a = M { unM :: RWS (Vector Text) (Vector Err) () a }
   deriving
     ( Functor
     , Applicative
     , Monad
-    , MonadWriter [Err]
-    , MonadReader [Text]
+    , MonadWriter (Vector Err)
+    , MonadReader (Vector Text)
     )
 
 ok :: M ()
@@ -44,16 +47,19 @@ ok = return ()
 err :: Err' -> M ()
 err e = do
   path <- ask
-  tell . (: []) . Err path $ e
+  tell . V.singleton . Err path $ e
 
 cond :: Err' -> Bool -> M ()
 cond e p = if p then ok else err e
 
 isValid :: Schema -> Value -> Bool
-isValid s v = null $ validate s v
+isValid s v = V.null $ validate s v
 
-validate :: Schema -> Value -> [Err]
-validate s v = (\(_,_,errs) -> errs) $ runRWS (unM $ validate' s v) [] ()
+validate :: Schema -> Value -> Vector Err
+validate s v = (\(_,_,errs) -> errs) $ runRWS (unM $ validate' s v) V.empty ()
+
+nestPath :: Text -> M a -> M a
+nestPath p m = local (`V.snoc` p) $ m
 
 validate' :: Schema -> Value -> M ()
 validate' sch val = case (sch, val) of
@@ -67,17 +73,17 @@ validate' sch val = case (sch, val) of
   ( S.Tuple   xs, A.Array vs ) ->
     do cond (TupleLength (length xs) vs) (length xs == V.length vs)
        sequence_ $ zipWith3
-         (\i s v -> local (T.pack (show i) :) $ validate' s v)
+         (\i s -> nestPath (T.pack (show i)) . validate' s)
          [0..] xs (V.toList vs)
   ( S.Map      x, A.Object h ) ->
     do let kvs = H.toList h
-       mapM_ (\(k,v) -> local (k :) $ validate' x v) kvs
+       mapM_ (\(k,v) -> nestPath k $ validate' x v) kvs
   ( S.Object  fs, A.Object h ) -> mapM_ (`validateField` h) fs
   ( S.Choice   s, _          ) ->
     do let errs = map (`validate` val) s
-       if all null errs
+       if any V.null errs
          then ok
-         else err $ ChoiceError errs val
+         else err $ ChoiceError (V.fromList errs) val
   ( S.Value    b, A.String w ) ->
     do inLowerLength b (T.length w)
        inUpperLength b (T.length w)
@@ -86,7 +92,7 @@ validate' sch val = case (sch, val) of
        inUpperLength b (V.length vs)
        if u then unique vs else ok
        sequence_ $ zipWith
-         (\i -> local (T.pack (show i) :) . validate' s)
+         (\i -> nestPath (T.pack (show i)) . validate' s)
          [0..] (V.toList vs)
   ( S.Null    {}, _          ) -> err $ Mismatch sch val
   ( S.Boolean {}, _          ) -> err $ Mismatch sch val
