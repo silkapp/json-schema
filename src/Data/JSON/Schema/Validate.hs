@@ -1,6 +1,14 @@
-module Data.JSON.Schema.Validate (validate) where
+{-# LANGUAGE
+    GeneralizedNewtypeDeriving
+  , ScopedTypeVariables
+  #-}
+module Data.JSON.Schema.Validate (isValid, validate) where
 
+import Control.Applicative
+import Control.Monad.RWS.Strict
+import Data.Aeson (Value)
 import Data.Scientific
+import Data.Text (Text)
 import Data.Vector (Vector)
 import qualified Data.Aeson          as A
 import qualified Data.HashMap.Strict as H
@@ -8,49 +16,118 @@ import qualified Data.HashSet        as HS
 import qualified Data.Text           as T
 import qualified Data.Vector         as V
 
+import Data.JSON.Schema (Schema)
 import qualified Data.JSON.Schema as S
 
-validate :: S.Schema -> A.Value -> Bool
-validate s v = case (s, v) of
-  ( S.Any       , _          ) -> True
-  ( S.Null      , A.Null     ) -> True
-  ( S.Boolean   , A.Bool{}   ) -> True
-  ( S.Constant x, _          ) -> x == v
-  ( S.Number   b, A.Number n ) -> inLower b n
-                               && inUpper b n
-  ( S.Choice  xs, _          ) -> any (`validate` v) xs
-  ( S.Tuple   xs, A.Array vs ) -> and $ (length xs == V.length vs) : zipWith validate xs (V.toList vs)
-  ( S.Object  fs, A.Object h ) -> all (`validateField` h) fs
-  ( S.Map      x, A.Object h ) -> all (validate x) . H.elems $ h
-  ( S.Value    b, A.String w ) -> inLowerLength b (T.length w)
-                               && inUpperLength b (T.length w)
-  ( S.Array b u x, A.Array vs) -> inLowerLength b (V.length vs)
-                               && inUpperLength b (V.length vs)
-                               && if u then unique vs else True
-                               && V.all (validate x) vs
-  ( S.Null      , _          ) -> False
-  ( S.Boolean   , _          ) -> False
-  ( S.Number  {}, _          ) -> False
-  ( S.Tuple   {}, _          ) -> False
-  ( S.Object  {}, _          ) -> False
-  ( S.Map     {}, _          ) -> False
-  ( S.Value   {}, _          ) -> False
-  ( S.Array   {}, _          ) -> False
+data Err = Err [Text] Err'
+data Err'
+  = Mismatch Schema Value
+  | BoundError S.Bound Scientific
+  | LengthBoundError S.LengthBound Int
+  | TupleLength Int (Vector Value)
+  | MissingRequiredField Text
+  | ChoiceError [[Err]] Value
+  | NonUniqueArray (Vector Value)
 
-validateField :: S.Field -> A.Object -> Bool
-validateField f o = maybe (not $ S.required f) (validate $ S.content f) $ H.lookup (S.key f) o
+newtype M a = M { unM :: RWS [Text] [Err] () a }
+  deriving
+    ( Functor
+    , Applicative
+    , Monad
+    , MonadWriter [Err]
+    , MonadReader [Text]
+    )
 
-unique :: Vector A.Value -> Bool
-unique vs = (== V.length vs) . HS.size . HS.fromList . V.toList $ vs
+ok :: M ()
+ok = return ()
 
-inLower :: S.Bound -> Scientific -> Bool
-inLower b v = maybe True ((<= v) . fromIntegral) . S.lower $ b
+err :: Err' -> M ()
+err e = do
+  path <- ask
+  tell . (: []) . Err path $ e
 
-inUpper :: S.Bound -> Scientific -> Bool
-inUpper b v = maybe True ((>= v) . fromIntegral) . S.upper $ b
+cond :: Err' -> Bool -> M ()
+cond e p = if p then ok else err e
 
-inLowerLength :: S.LengthBound -> Int -> Bool
-inLowerLength b v = maybe True (<= v) . S.lowerLength $ b
+isValid :: Schema -> Value -> Bool
+isValid s v = null $ validate s v
 
-inUpperLength :: S.LengthBound -> Int -> Bool
-inUpperLength b v = maybe True (>= v) . S.upperLength $ b
+validate :: Schema -> Value -> [Err]
+validate s v = (\(_,_,errs) -> errs) $ runRWS (unM $ validate' s v) [] ()
+
+validate' :: Schema -> Value -> M ()
+validate' sch val = case (sch, val) of
+  ( S.Any       , _          ) -> ok
+  ( S.Null      , A.Null     ) -> ok
+  ( S.Boolean   , A.Bool{}   ) -> ok
+  ( S.Constant x, _          ) -> cond (Mismatch sch val) (x == val)
+  ( S.Number   b, A.Number n ) ->
+    do inLower b n
+       inUpper b n
+  ( S.Tuple   xs, A.Array vs ) ->
+    do cond (TupleLength (length xs) vs) (length xs == V.length vs)
+       sequence_ $ zipWith3
+         (\i s v -> local (T.pack (show i) :) $ validate' s v)
+         [0..] xs (V.toList vs)
+  ( S.Map      x, A.Object h ) ->
+    do let kvs = H.toList h
+       mapM_ (\(k,v) -> local (k :) $ validate' x v) kvs
+  ( S.Object  fs, A.Object h ) -> mapM_ (`validateField` h) fs
+  ( S.Choice   s, _          ) ->
+    do let errs = map (`validate` val) s
+       if all null errs
+         then ok
+         else err $ ChoiceError errs val
+  ( S.Value    b, A.String w ) ->
+    do inLowerLength b (T.length w)
+       inUpperLength b (T.length w)
+  ( S.Array b u s, A.Array vs) ->
+    do inLowerLength b (V.length vs)
+       inUpperLength b (V.length vs)
+       if u then unique vs else ok
+       sequence_ $ zipWith
+         (\i -> local (T.pack (show i) :) . validate' s)
+         [0..] (V.toList vs)
+  ( S.Null    {}, _          ) -> err $ Mismatch sch val
+  ( S.Boolean {}, _          ) -> err $ Mismatch sch val
+  ( S.Number  {}, _          ) -> err $ Mismatch sch val
+  ( S.Tuple   {}, _          ) -> err $ Mismatch sch val
+  ( S.Object  {}, _          ) -> err $ Mismatch sch val
+  ( S.Map     {}, _          ) -> err $ Mismatch sch val
+  ( S.Value   {}, _          ) -> err $ Mismatch sch val
+  ( S.Array   {}, _          ) -> err $ Mismatch sch val
+
+validateField :: S.Field -> A.Object -> M ()
+validateField f o = maybe req (validate' $ S.content f) $ H.lookup (S.key f) o
+  where
+    req | not (S.required f) = ok
+        | otherwise          = err $ MissingRequiredField (S.key f)
+
+unique :: Vector Value -> M ()
+unique vs =
+  when (not . (== V.length vs) . HS.size . HS.fromList . V.toList $ vs) $
+    err (NonUniqueArray vs)
+
+inLower :: S.Bound -> Scientific -> M ()
+inLower b v =
+  if (maybe True ((<= v) . fromIntegral) . S.lower $ b)
+    then ok
+    else err (BoundError b v)
+
+inUpper :: S.Bound -> Scientific -> M ()
+inUpper b v =
+  if (maybe True ((>= v) . fromIntegral) . S.upper $ b)
+    then ok
+    else err (BoundError b v)
+
+inLowerLength :: S.LengthBound -> Int -> M ()
+inLowerLength b v =
+  if (maybe True (<= v) . S.lowerLength $ b)
+    then ok
+    else err (LengthBoundError b v)
+
+inUpperLength :: S.LengthBound -> Int -> M ()
+inUpperLength b v =
+  if (maybe True (>= v) . S.upperLength $ b)
+    then ok
+    else err (LengthBoundError b v)

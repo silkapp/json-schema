@@ -23,7 +23,7 @@ import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
 
 import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
-import Data.JSON.Schema.Validate (validate)
+import Data.JSON.Schema.Validate (isValid)
 import qualified Data.JSON.Schema as S
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
@@ -226,7 +226,7 @@ valid :: forall a . (Show a, ToJSON a, FromJSON a, JSONSchema a) => a -> Asserti
 valid v = do
   case eitherDecodeV (encode v) of
     Left err -> error err
-    Right r -> assertBool ("schema validation for " ++ show v) $ validate (schema (Proxy :: Proxy a)) r
+    Right r -> assertBool ("schema validation for " ++ show v) $ isValid (schema (Proxy :: Proxy a)) r
 
 encDec :: (FromJSON a, ToJSON a) => a -> Either String a
 encDec a = case (parse value . encode) a of
