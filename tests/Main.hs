@@ -11,7 +11,6 @@ import Data.Aeson hiding (Result)
 import Data.Aeson.Parser
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
-import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
 import Data.List (intersperse)
 import Data.Proxy
 import GHC.Generics (Generic)
@@ -20,7 +19,9 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
+
 import qualified Data.JSON.Schema as S
+import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson
@@ -191,7 +192,7 @@ instance JSONSchema W where schema = gSchema
 case_recordWithUnderscoredFields = do
   eq (unsafeParse "{\"underscore1\":1,\"underscore2\":2}",Right (W {underscore1_ = 1, _underscore2 = 2}))
      (toJSON (W 1 2), encDec (W 1 2))
-  eq (S.Object [Field {key = "underscore1_", required = True, content = S.Number S.unbounded},Field {key = "_underscore2", required = True, content = S.Number S.unbounded}])
+  eq (S.Object [Field {key = "underscore1", required = True, content = S.Number S.unbounded},Field {key = "underscore2", required = True, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy W))
 
 -- Helpers
