@@ -2,6 +2,7 @@
 {-# LANGUAGE
     DeriveGeneric
   , OverloadedStrings
+  , ScopedTypeVariables
   , TemplateHaskell
   , TypeFamilies
   #-}
@@ -9,6 +10,7 @@ module Main (main) where
 
 import Data.Aeson hiding (Result)
 import Data.Aeson.Parser
+import Data.Aeson.Utils (eitherDecodeV)
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
 import Data.List (intersperse)
@@ -20,8 +22,9 @@ import Test.Tasty.HUnit
 import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
 
-import qualified Data.JSON.Schema as S
 import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
+import Data.JSON.Schema.Validate (validate)
+import qualified Data.JSON.Schema as S
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson
@@ -33,6 +36,7 @@ case_constructorWithoutFields = do
      (toJSON SingleCons , encDec SingleCons)
   eq (S.Constant (A.String "singleCons"))
      (schema (Proxy :: Proxy SingleCons))
+  valid SingleCons
 
 data Record = Record { field :: Int } deriving (Generic, Show, Eq)
 instance ToJSON   Record where toJSON    = gtoJson
@@ -43,6 +47,7 @@ case_record = do
      (toJSON Record { field = 1 }, encDec Record { field = 1 })
   eq (S.Object [S.Field {S.key = "field", S.required = True, S.content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy Record))
+  valid Record { field = 1 }
 
 data RecordTwoFields = D { d1 :: Int, d2 :: String } deriving (Generic, Show, Eq)
 instance ToJSON   RecordTwoFields where toJSON = gtoJson
@@ -53,6 +58,7 @@ case_recordWithFields = do
      (toJSON D { d1 = 1, d2 = "aap" }, encDec D { d1 = 1, d2 = "aap" })
   eq (S.Object [Field {key = "d1", required = True, content = S.Number S.unbounded}, Field {key = "d2", required = True, content = S.Value S.unboundedLength }])
      (schema (Proxy :: Proxy RecordTwoFields))
+  valid D { d1 = 1, d2 = "aap"}
 
 data E = E Int deriving (Generic, Show, Eq)
 instance ToJSON   E where toJSON = gtoJson
@@ -63,6 +69,7 @@ case_constructorOneField = do
      (toJSON (E 1) , encDec (E 1))
   eq (S.Number S.unbounded)
      (schema (Proxy :: Proxy E))
+  valid $ E 1
 
 data F = F Int String deriving (Generic, Show, Eq)
 instance ToJSON   F where toJSON = gtoJson
@@ -73,6 +80,7 @@ case_constructorWithFields = do
      (toJSON (F 1 "aap"), encDec (F 1 "aap"))
   eq (S.Tuple [S.Number S.unbounded, S.Value S.unboundedLength])
      (schema (Proxy :: Proxy F))
+  valid $ F 1 "aap"
 
 data G = G1 Int | G2 String deriving (Generic, Show, Eq)
 instance ToJSON   G where toJSON = gtoJson
@@ -83,6 +91,8 @@ case_sumConstructorsWithField = do
      (toJSON (G1 1), toJSON (G2 "aap"), encDec (G1 1), encDec (G2 "aap"))
   eq (S.Choice [S.Object [Field {key = "g1", required = True, content = S.Number S.unbounded}],S.Object [Field {key = "g2", required = True, content = S.Value S.unboundedLength }]])
      (schema (Proxy :: Proxy G))
+  valid $ G1 1
+  valid $ G2 "aap"
 
 data H = H1 { h1 :: Int } | H2 { h2 :: String } deriving (Generic, Show, Eq)
 instance ToJSON   H where toJSON = gtoJson
@@ -93,6 +103,8 @@ case_sumRecord = do
      (toJSON (H1 1), toJSON (H2 "aap"), encDec (H1 1), encDec (H2 "aap"))
   eq (S.Choice [S.Object [Field {key = "h1", required = True, content = S.Object [Field {key = "h1", required = True, content = S.Number S.unbounded}]}],S.Object [Field {key = "h2", required = True, content = S.Object [Field {key = "h2", required = True, content = S.Value S.unboundedLength}]}]])
      (schema (Proxy :: Proxy H))
+  valid $ H1 1
+  valid $ H2 "aap"
 
 data J = J1 { j1 :: Int, j2 :: String } | J2 deriving (Generic, Show, Eq)
 instance ToJSON   J where toJSON = gtoJson
@@ -103,6 +115,8 @@ case_sumRecordConstructorWithoutFields = do
      (toJSON (J1 1 "aap"), toJSON J2, encDec (J1 1 "aap"), encDec J2)
   eq (S.Choice [S.Object [Field {key = "j1", required = True, content = S.Object [Field {key = "j1", required = True, content = S.Number S.unbounded},Field {key = "j2", required = True, content = S.Value S.unboundedLength }]}],S.Object [Field {key = "j2", required = True, content = S.Object []}]])
      (schema (Proxy :: Proxy J))
+  valid $ J1 1 "aap"
+  valid $ J2
 
 data L = L1 | L2 Int String deriving (Generic, Show, Eq)
 instance ToJSON   L where toJSON = gtoJson
@@ -113,6 +127,8 @@ case_sumConstructorWithoutFieldsConstructorWithFields = do
      (toJSON L1, toJSON (L2 1 "aap"), encDec L1, encDec (L2 1 "aap"))
   eq (S.Choice [S.Object [Field {key = "l1", required = True, content = S.Object []}],S.Object [Field {key = "l2", required = True, content = S.Tuple [S.Number S.unbounded, S.Value S.unboundedLength]}]])
      (schema (Proxy :: Proxy L))
+  valid L1
+  valid (L2 1 "aap")
 
 data M = M1 | M2 Int M deriving (Generic, Show, Eq)
 instance ToJSON   M where toJSON = gtoJson
@@ -144,6 +160,7 @@ case_recordListField = do
      (toJSON (O [1,2,3]), encDec (O [1,2,3]))
   eq (S.Object [Field {key = "o", required = True, content = S.Array S.unboundedLength False (S.Number S.unbounded)}])
      (schema (Proxy :: Proxy O))
+  valid $ O [1,2,3]
 
 data P = P [Int] deriving (Generic, Show, Eq)
 instance ToJSON   P where toJSON = gtoJson
@@ -154,6 +171,7 @@ case_constructorListField = do
      (toJSON (P [1,2,3]), encDec (P [1,2,3]))
   eq (S.Array S.unboundedLength False (S.Number S.unbounded))
      (schema (Proxy :: Proxy P))
+  valid $ P [1,2,3]
 
 data Q = Q Int Int Int deriving (Generic, Show, Eq)
 instance ToJSON   Q where toJSON = gtoJson
@@ -164,6 +182,7 @@ case_ConstructorSameTypedFields = do
      (toJSON (Q 1 2 3), encDec (Q 1 2 3))
   eq (S.Tuple [S.Number S.unbounded, S.Number S.unbounded, S.Number S.unbounded])
      (schema (Proxy :: Proxy Q))
+  valid $ Q 1 2 3
 
 data T = T { r1 :: Maybe Int } deriving (Generic, Show, Eq)
 instance ToJSON   T where toJSON = gtoJson
@@ -174,6 +193,8 @@ case_RecordMaybeField = do
      (toJSON (T Nothing), toJSON (T (Just 1)), encDec (T Nothing), encDec (T (Just 1)))
   eq (S.Object [Field {key = "r1", required = False, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy T))
+  valid $ T Nothing
+  valid $ T (Just 1)
 
 data V = V1 | V2 | V3 deriving (Generic, Show, Eq)
 instance ToJSON   V where toJSON = gtoJson
@@ -184,6 +205,8 @@ case_constructorsWithoutFields = do
      (toJSON V1, toJSON V2, encDec V1, encDec V2)
   eq (S.Choice [S.Constant (A.String "v1"), S.Constant (A.String "v2"), S.Constant (A.String "v3")])
      (schema (Proxy :: Proxy V))
+  valid V1
+  valid V2
 
 data W = W { underscore1_ :: Int, _underscore2 :: Int } deriving (Generic, Show, Eq)
 instance ToJSON   W where toJSON = gtoJson
@@ -194,8 +217,16 @@ case_recordWithUnderscoredFields = do
      (toJSON (W 1 2), encDec (W 1 2))
   eq (S.Object [Field {key = "underscore1", required = True, content = S.Number S.unbounded},Field {key = "underscore2", required = True, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy W))
+  valid $ W 1 2
 
 -- Helpers
+
+-- | Serializes a value to an aeson Value and validates that against the type's schema
+valid :: forall a . (Show a, ToJSON a, FromJSON a, JSONSchema a) => a -> Assertion
+valid v = do
+  case eitherDecodeV (encode v) of
+    Left err -> error err
+    Right r -> assertBool ("schema validation for " ++ show v) $ validate (schema (Proxy :: Proxy a)) r
 
 encDec :: (FromJSON a, ToJSON a) => a -> Either String a
 encDec a = case (parse value . encode) a of
@@ -216,3 +247,4 @@ tests = $testGroupGenerator
 
 main :: IO ()
 main = defaultMain $ testGroup "generic-aeson" [tests]
+

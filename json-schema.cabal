@@ -27,12 +27,14 @@ library
     Data.JSON.Schema.Combinators
     Data.JSON.Schema.Generic
     Data.JSON.Schema.Types
+    Data.JSON.Schema.Validate
   build-depends:
       base == 4.*
-    , aeson >= 0.6 && < 0.9
+    , aeson >= 0.7 && < 0.9
     , containers >= 0.3 && < 0.6
     , generic-aeson >= 0.1.1.1 && < 0.2
     , generic-deriving == 1.6.*
+    , scientific == 0.3.*
     , tagged >= 0.2 && < 0.8
     , text >= 0.10 && < 1.2
     , time >= 1.2 && < 1.5
@@ -47,6 +49,7 @@ test-suite json-schema-generic-aeson-tests
   build-depends:
       base
     , aeson
+    , aeson-utils == 0.2.*
     , attoparsec >= 0.10 && < 0.13
     , bytestring >= 0.10 && < 0.12
     , generic-aeson >= 0.1.1.1 && < 0.2
