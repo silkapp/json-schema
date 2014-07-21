@@ -1,4 +1,10 @@
-## 0.6.1
+# Changelog
+
+#### 0.6.1.1
+
+* Bugfix: Remove underscores from fields and constructors in generated schemas to match generic-aeson.
+
+### 0.6.1
 
 * Add JSONSchema instances for tuples up to length 15 (matching aeson 0.8 instances)
 * Specify uniqueness for JSONSchema instances for Set.
