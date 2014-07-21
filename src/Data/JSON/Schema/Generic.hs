@@ -21,10 +21,13 @@ import Data.Proxy
 import Data.Text (Text)
 import GHC.Generics
 import Generics.Deriving.ConNames
-import Generics.Generic.Aeson (formatLabel)
-import Generics.Generic.IsEnum
+import Generics.Generic.Aeson.Util
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Text        as T
+
+-- | Derive a JSON schema for types with an instance of 'Generic'.
+gSchema :: (Generic a, GJSONSCHEMA (Rep a), ConNames (Rep a), GIsEnum (Rep a)) => Proxy a -> Schema
+gSchema p = gSchema' (isEnum p) ((map T.pack . conNames . pv) p) (fmap from p)
 
 class GJSONSCHEMA f where
   gSchema' :: Bool -> [Text] -> Proxy (f a) -> Schema
@@ -54,18 +57,6 @@ instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :+: g) where
       gR :: (f :+: g) r -> g r
       gR _ = undefined
 
-gFst :: (f :*: g) r -> f r
-gFst (f :*: _) = f
-
-gSnd :: (f :*: g) r -> g r
-gSnd (_ :*: g) = g
-
-pv :: Proxy a -> a
-pv _ = undefined
-
-toConstant :: Text -> Schema
-toConstant = Constant . Aeson.String . formatLabel
-
 instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :*: g) where
   gSchema' enm names p = gSchema' enm names (gFst <$> p) `merge` gSchema' enm names (gSnd <$> p)
 
@@ -73,12 +64,12 @@ instance (Constructor c, GJSONSCHEMA f) => GJSONSCHEMA (M1 C c f) where
   gSchema' True _ = toConstant . conNameT . pv
   gSchema' enm names = wrap . gSchema' enm names . fmap unM1
     where
-      wrap = if multipleConstructors names
+      wrap = if multipleCons names
              then field (conNameT (undefined :: M1 C c f p)) True
              else id
 
 instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
-  gSchema' True names p | multipleConstructors names = const (Choice . fmap toConstant $ names) $ p
+  gSchema' True names p | multipleCons names = const (Choice . fmap toConstant $ names) $ p
   gSchema' enm names p = gSchema' enm names . fmap unM1 $ p
 
 instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) where
@@ -91,19 +82,21 @@ instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
 instance (Selector c, GJSONSCHEMA f) => GJSONSCHEMA (M1 S c f) where
   gSchema' enm names = wrap . gSchema' enm names . fmap unM1
     where
-      wrap = case (formatLabel . T.pack . selName) (undefined :: M1 S c f p) of
+      wrap = case selNameT (undefined :: M1 S c f p) of
         "" -> id
         s -> field s True
 
-conNameT :: forall c (t :: * -> (* -> *) -> * -> *) (f :: * -> *) a. Constructor c => t c f a -> Text
-conNameT x = formatLabel . T.pack . conName $ x
+toConstant :: Text -> Schema
+toConstant = Constant . Aeson.String . formatLabel
 
-selNameT :: forall s (t :: * -> (* -> *) -> * -> *) (f :: * -> *) a. Selector s => t s f a -> Text
-selNameT x = formatLabel . T.pack . selName $ x
+gFst :: (f :*: g) r -> f r
+gFst (f :*: _) = f
 
-multipleConstructors :: [Text] -> Bool
-multipleConstructors = (> 1) . length
+gSnd :: (f :*: g) r -> g r
+gSnd (_ :*: g) = g
 
--- | Derive a JSON schema for types with an instance of 'Generic'.
-gSchema :: (Generic a, GJSONSCHEMA (Rep a), ConNames (Rep a), GIsEnum (Rep a)) => Proxy a -> Schema
-gSchema p = gSchema' (isEnum p) ((map T.pack . conNames . pv) p) (fmap from p)
+pv :: Proxy a -> a
+pv _ = undefined
+
+multipleCons :: [Text] -> Bool
+multipleCons = (> 1) . length
