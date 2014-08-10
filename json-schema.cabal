@@ -46,7 +46,6 @@ test-suite json-schema-generic-aeson-tests
   type:              exitcode-stdio-1.0
   build-depends:
       base
-    , HUnit >= 1.2 && < 1.3
     , aeson
     , attoparsec >= 0.10 && < 0.13
     , bytestring >= 0.10 && < 0.12
