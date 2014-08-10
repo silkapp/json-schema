@@ -74,7 +74,7 @@ validate' sch val = case (sch, val) of
     do cond (TupleLength (length xs) vs) (length xs == V.length vs)
        sequence_ $ zipWith3
          (\i s -> nestPath (T.pack (show i)) . validate' s)
-         [0..] xs (V.toList vs)
+         [(0::Int)..] xs (V.toList vs)
   ( S.Map      x, A.Object h ) ->
     do let kvs = H.toList h
        mapM_ (\(k,v) -> nestPath k $ validate' x v) kvs
@@ -93,7 +93,7 @@ validate' sch val = case (sch, val) of
        if u then unique vs else ok
        sequence_ $ zipWith
          (\i -> nestPath (T.pack (show i)) . validate' s)
-         [0..] (V.toList vs)
+         [(0::Int)..] (V.toList vs)
   ( S.Null    {}, _          ) -> err $ Mismatch sch val
   ( S.Boolean {}, _          ) -> err $ Mismatch sch val
   ( S.Number  {}, _          ) -> err $ Mismatch sch val

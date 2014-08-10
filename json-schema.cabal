@@ -34,6 +34,7 @@ library
     , containers >= 0.3 && < 0.6
     , generic-aeson >= 0.1.1.1 && < 0.2
     , generic-deriving == 1.6.*
+    , mtl >= 2.1 && < 2.3
     , scientific == 0.3.*
     , tagged >= 0.2 && < 0.8
     , text >= 0.10 && < 1.2
@@ -48,7 +49,7 @@ test-suite json-schema-generic-aeson-tests
   type:              exitcode-stdio-1.0
   build-depends:
       base
-    , aeson
+    , aeson >= 0.7 && < 0.9
     , aeson-utils == 0.2.*
     , attoparsec >= 0.10 && < 0.13
     , bytestring >= 0.10 && < 0.12
@@ -59,3 +60,4 @@ test-suite json-schema-generic-aeson-tests
     , tasty-hunit >= 0.8 && < 0.10
     , tasty-th == 0.1.*
     , text >= 0.10 && < 1.2
+    , vector == 0.10.*
