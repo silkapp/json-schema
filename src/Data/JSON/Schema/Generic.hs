@@ -45,13 +45,13 @@ instance GJSONSCHEMA I where
 -}
 
 instance JSONSchema c => GJSONSCHEMA (K1 i c) where
-  gSchema' set _ _ = schema . fmap unK1
+  gSchema' _ _ _ = schema . fmap unK1
 
 instance GJSONSCHEMA (K1 i String) where
-  gSchema' set _ _ _ = Value unboundedLength
+  gSchema' _ _ _ _ = Value unboundedLength
 
 instance GJSONSCHEMA U1 where
-  gSchema' set _ _ _ = empty
+  gSchema' _ _ _ _ = empty
 
 instance (GJSONSCHEMA f, GJSONSCHEMA g) => GJSONSCHEMA (f :+: g) where
   gSchema' set enm names p =

@@ -202,7 +202,7 @@ instance ToJSON     Strip where toJSON    = gtoJsonWithSettings    stripSettings
 instance FromJSON   Strip where parseJSON = gparseJsonWithSettings stripSettings
 instance JSONSchema Strip where schema    = gSchemaWithSettings    stripSettings
 case_strip = do
-  eq (unsafeParse "{\"a\":1,\"b\":2,\"c\":3}",Right (Strip {stripA = 1, strip_B = 2, stripC_ = 3, strip = 4}))
+  eq (unsafeParse "{\"a\":1,\"b\":2,\"c\":3,\"strip\":4}",Right (Strip {stripA = 1, strip_B = 2, stripC_ = 3, strip = 4}))
      (toJSON (Strip 1 2 3 4), encDec (Strip 1 2 3 4))
   eq (S.Object [ Field { key = "a"    , required = True, content = S.Number S.unbounded }
                , Field { key = "b"    , required = True, content = S.Number S.unbounded }
