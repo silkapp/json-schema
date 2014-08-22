@@ -21,7 +21,7 @@ import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
 
 import qualified Data.JSON.Schema as S
-import Data.JSON.Schema (JSONSchema (..), gSchema, Field (..))
+import Data.JSON.Schema (Field (..), JSONSchema (..), gSchema, gSchemaWithSettings)
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson
@@ -194,6 +194,22 @@ case_recordWithUnderscoredFields = do
      (toJSON (W 1 2), encDec (W 1 2))
   eq (S.Object [Field {key = "underscore1", required = True, content = S.Number S.unbounded},Field {key = "underscore2", required = True, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy W))
+
+data Strip = Strip { stripA :: Int, strip_B :: Int, stripC_ :: Int, strip :: Int } deriving (Generic, Show, Eq)
+stripSettings :: Settings
+stripSettings = defaultSettings { stripPrefix = Just "strip" }
+instance ToJSON     Strip where toJSON    = gtoJsonWithSettings    stripSettings
+instance FromJSON   Strip where parseJSON = gparseJsonWithSettings stripSettings
+instance JSONSchema Strip where schema    = gSchemaWithSettings    stripSettings
+case_strip = do
+  eq (unsafeParse "{\"a\":1,\"b\":2,\"c\":3}",Right (Strip {stripA = 1, strip_B = 2, stripC_ = 3, strip = 4}))
+     (toJSON (Strip 1 2 3 4), encDec (Strip 1 2 3 4))
+  eq (S.Object [ Field { key = "a"    , required = True, content = S.Number S.unbounded }
+               , Field { key = "b"    , required = True, content = S.Number S.unbounded }
+               , Field { key = "c"    , required = True, content = S.Number S.unbounded }
+               , Field { key = "strip", required = True, content = S.Number S.unbounded }
+               ])
+     (schema (Proxy :: Proxy Strip))
 
 -- Helpers
 
