@@ -1,12 +1,13 @@
 language: haskell
 install:
-  - "cabal install --enable-tests --dry-run -v3"
-  - "travis_retry cabal install --only-dependencies --force-reinstalls --enable-tests"
+  - "git clone https://github.com/silkapp/generic-aeson.git"
+  - "cabal install --enable-tests --dry-run -v3 . generic-aeson/"
+  - "travis_retry cabal install generic-aeson/"
+  - "travis_retry cabal install --only-dependencies --enable-tests"
 script:
   - "cabal test --jobs=1"
 notifications:
   email:
-    recipients:
-      - adam@silk.co
+    recipients: travis@silk.co
     on_success: never
     on_failure: change
