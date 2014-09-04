@@ -8,7 +8,7 @@
 module Main (main) where
 
 import Data.Aeson hiding (Result)
-import Data.Aeson.Parser
+import qualified Data.Aeson.Parser as A
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
 import Data.List (intersperse)
@@ -22,7 +22,7 @@ import qualified Data.Aeson.Types as A
 
 import qualified Data.JSON.Schema as S
 import Data.JSON.Schema (Field (..), JSONSchema (..), gSchema, gSchemaWithSettings, Schema (Choice, Tuple))
-import Data.JSON.Schema.Combinators (number, empty, (<|>), field)
+import Data.JSON.Schema.Combinators (number, empty, (<|>), field, value)
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson
@@ -289,15 +289,44 @@ case_recordWithOnlyOneMaybeField = do
   eq "{\"x2\":1}"
      (encode X2 { x2 = Just 1 })
 
+data MaybeStringCon = MaybeStringCon (Maybe String)
+  deriving (Eq, Generic, Show)
+instance ToJSON     MaybeStringCon where toJSON    = gtoJson
+instance FromJSON   MaybeStringCon where parseJSON = gparseJson
+instance JSONSchema MaybeStringCon where schema    = gSchema
+data MaybeString = MaybeString { ms :: Maybe String }
+  deriving (Eq, Generic, Show)
+instance ToJSON     MaybeString where toJSON    = gtoJson
+instance FromJSON   MaybeString where parseJSON = gparseJson
+instance JSONSchema MaybeString where schema    = gSchema
+case_maybeString = do
+  let a = MaybeStringCon (Just "x")
+  eq (unsafeParse "\"x\"", Right a)
+     (toJSON a, encDec a)
+
+  eq (value <|> S.Null)
+     (schema (Proxy :: Proxy MaybeStringCon))
+
+  let b = MaybeString { ms = Just "x" }
+  eq (unsafeParse "{\"ms\":\"x\"}", Right b)
+     (toJSON b, encDec b)
+
+  let c = MaybeString Nothing
+  eq (unsafeParse "{}", Right c)
+     (toJSON c, encDec c)
+
+  eq (field "ms" False value)
+     (schema (Proxy :: Proxy MaybeString))
+
 -- Helpers
 
 encDec :: (FromJSON a, ToJSON a) => a -> Either String a
-encDec a = case (parse value . encode) a of
+encDec a = case (parse A.value . encode) a of
   Done _ r -> case fromJSON r of A.Success v -> Right v; Error s -> Left $ "fromJSON r=" ++ show r ++ ", s=" ++ s
   Fail _ ss e -> Left . concat $ intersperse "," (ss ++ [e])
 
 unsafeParse :: ByteString -> Value
-unsafeParse = fromResult . parse value
+unsafeParse = fromResult . parse A.value
   where
     fromResult (Done _ r) = r
     fromResult _ = error "unsafeParse failed"
