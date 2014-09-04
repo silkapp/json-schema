@@ -81,8 +81,8 @@ instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
 instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) where
   gSchema' set _ _ =
     case selNameT set (undefined :: M1 S c f p) of
-      "" -> (<|> Null)    . maybeElemSchema -- C (Maybe a)        => [a]       or [null]
-      n  -> field n False . maybeElemSchema -- C { f :: Maybe a } => { f : a } or {}
+      Nothing -> (<|> Null)    . maybeElemSchema -- C (Maybe a)        => [a]       or [null]
+      Just n  -> field n False . maybeElemSchema -- C { f :: Maybe a } => { f : a } or {}
     where
       maybeElemSchema :: Proxy (M1 S c (K1 i (Maybe a)) p) -> Schema
       maybeElemSchema = s
@@ -91,15 +91,13 @@ instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) whe
 instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
   gSchema' set _ _ _ =
     case selNameT set (undefined :: M1 S c f p) of
-      "" -> value <|> Null
-      n  -> field n False value
+      Nothing -> value <|> Null
+      Just n  -> field n False value
 
 instance (Selector c, GJSONSCHEMA f) => GJSONSCHEMA (M1 S c f) where
   gSchema' set enm names = wrap . gSchema' set enm names . fmap unM1
     where
-      wrap = case selNameT set (undefined :: M1 S c f p) of
-        "" -> id
-        s -> field s True
+      wrap = maybe id (\s -> field s True) $ selNameT set (undefined :: M1 S c f p)
 
 toConstant :: Settings -> Text -> Schema
 toConstant set = Constant . Aeson.String . formatLabel set
