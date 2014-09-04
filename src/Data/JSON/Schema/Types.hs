@@ -49,7 +49,7 @@ data Schema =
                          -- indicates no bound.
   | Constant Aeson.Value -- ^ A Value that never changes. Can be
                          -- combined with Choice to create enumerables.
-  | Any                  -- ^ Anything value is allowed.
+  | Any                  -- ^ Any value is allowed.
   deriving (Eq, Show)
 
 -- | A type for bounds on number domains. Use Nothing when no lower or upper bound makes sense
