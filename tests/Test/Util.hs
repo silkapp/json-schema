@@ -11,6 +11,7 @@ import Data.Aeson.Parser ()
 import Data.Aeson.Utils (eitherDecodeV)
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy.Char8 (unpack)
 import Data.List (intersperse)
 import Data.Proxy
 import Test.Tasty.HUnit
@@ -38,10 +39,17 @@ encDec a = case (parse A.value . encode) a of
   Fail _ ss e -> Left . concat $ intersperse "," (ss ++ [e])
 
 unsafeParse :: ByteString -> Value
-unsafeParse = fromResult . parse A.value
+unsafeParse b = fromResult . parse A.value $ b
   where
     fromResult (Done _ r) = r
-    fromResult _ = error "unsafeParse failed"
+    fromResult _ = error $ "unsafeParse failed on: " ++ unpack b
 
 eq :: (Show a, Eq a) => a -> a -> Assertion
 eq = (@=?)
+
+bidir ::  (FromJSON a, ToJSON a, Show a, Eq a) => ByteString -> a -> IO ()
+bidir s d = do
+  eq (unsafeParse s)
+     (toJSON d)
+  eq (Right d)
+     (encDec d)

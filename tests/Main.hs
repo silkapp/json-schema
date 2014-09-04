@@ -29,8 +29,7 @@ instance FromJSON SingleCons where parseJSON = gparseJson
 instance JSONSchema SingleCons where schema = gSchema
 
 case_constructorWithoutFields = do
-  eq (unsafeParse "\"singleCons\"", Right SingleCons)
-     (toJSON SingleCons , encDec SingleCons)
+  bidir "\"singleCons\"" SingleCons
   eq (S.Constant (A.String "singleCons"))
      (schema (Proxy :: Proxy SingleCons))
   valid SingleCons
@@ -40,9 +39,7 @@ instance ToJSON   Record where toJSON    = gtoJson
 instance FromJSON Record where parseJSON = gparseJson
 instance JSONSchema Record where schema = gSchema
 case_record = do
-  let a = Record { recordField = 1 }
-  eq (unsafeParse "{\"recordField\":1}", Right a)
-     (toJSON a                         , encDec a)
+  bidir "{\"recordField\":1}" Record { recordField = 1 }
   eq (S.Object [S.Field {S.key = "recordField", S.required = True, S.content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy Record))
   valid Record { recordField = 1 }
@@ -52,8 +49,7 @@ instance ToJSON   RecordTwoFields where toJSON = gtoJson
 instance FromJSON RecordTwoFields where parseJSON = gparseJson
 instance JSONSchema RecordTwoFields where schema = gSchema
 case_recordWithFields = do
-  eq (unsafeParse "{\"d1\":1,\"d2\":\"aap\"}"  , Right (D {d1 = 1, d2 = "aap"}))
-     (toJSON D { d1 = 1, d2 = "aap" }, encDec D { d1 = 1, d2 = "aap" })
+  bidir "{\"d1\":1,\"d2\":\"aap\"}"D {d1 = 1, d2 = "aap"}
   eq (S.Object [Field {key = "d1", required = True, content = S.Number S.unbounded}, Field {key = "d2", required = True, content = S.Value S.unboundedLength }])
      (schema (Proxy :: Proxy RecordTwoFields))
   valid D { d1 = 1, d2 = "aap"}
@@ -63,8 +59,7 @@ instance ToJSON   E where toJSON = gtoJson
 instance FromJSON E where parseJSON = gparseJson
 instance JSONSchema E where schema = gSchema
 case_constructorOneField = do
-  eq (unsafeParse "1"        , Right (E 1))
-     (toJSON (E 1) , encDec (E 1))
+  bidir "1" (E 1)
   eq (S.Number S.unbounded)
      (schema (Proxy :: Proxy E))
   valid $ E 1
@@ -74,8 +69,7 @@ instance ToJSON   F where toJSON = gtoJson
 instance FromJSON F where parseJSON = gparseJson
 instance JSONSchema F where schema = gSchema
 case_constructorWithFields = do
-  eq (unsafeParse "[1,\"aap\"]",Right (F 1 "aap"))
-     (toJSON (F 1 "aap"), encDec (F 1 "aap"))
+  bidir "[1,\"aap\"]" (F 1 "aap")
   eq (S.Tuple [S.Number S.unbounded, S.Value S.unboundedLength])
      (schema (Proxy :: Proxy F))
   valid $ F 1 "aap"
@@ -85,8 +79,8 @@ instance ToJSON   G where toJSON = gtoJson
 instance FromJSON G where parseJSON = gparseJson
 instance JSONSchema G where schema = gSchema
 case_sumConstructorsWithField = do
-  eq (unsafeParse "{\"g1\":1}",unsafeParse "{\"g2\":\"aap\"}",Right (G1 1),Right (G2 "aap"))
-     (toJSON (G1 1), toJSON (G2 "aap"), encDec (G1 1), encDec (G2 "aap"))
+  bidir "{\"g1\":1}" (G1 1)
+  bidir "{\"g2\":\"aap\"}" (G2 "aap")
   eq (S.Choice [S.Object [Field {key = "g1", required = True, content = S.Number S.unbounded}],S.Object [Field {key = "g2", required = True, content = S.Value S.unboundedLength }]])
      (schema (Proxy :: Proxy G))
   valid $ G1 1
@@ -97,8 +91,8 @@ instance ToJSON   H where toJSON = gtoJson
 instance FromJSON H where parseJSON = gparseJson
 instance JSONSchema H where schema = gSchema
 case_sumRecord = do
-  eq (unsafeParse "{\"h1\":{\"h1\":1}}",unsafeParse "{\"h2\":{\"h2\":\"aap\"}}",Right (H1 {h1 = 1}),Right (H2 {h2 = "aap"}))
-     (toJSON (H1 1), toJSON (H2 "aap"), encDec (H1 1), encDec (H2 "aap"))
+  bidir "{\"h1\":{\"h1\":1}}" H1 { h1 = 1 }
+  bidir "{\"h2\":{\"h2\":\"aap\"}}" H2 { h2 = "aap" }
   eq (S.Choice [S.Object [Field {key = "h1", required = True, content = S.Object [Field {key = "h1", required = True, content = S.Number S.unbounded}]}],S.Object [Field {key = "h2", required = True, content = S.Object [Field {key = "h2", required = True, content = S.Value S.unboundedLength}]}]])
      (schema (Proxy :: Proxy H))
   valid $ H1 1
@@ -109,8 +103,8 @@ instance ToJSON   J where toJSON = gtoJson
 instance FromJSON J where parseJSON = gparseJson
 instance JSONSchema J where schema = gSchema
 case_sumRecordConstructorWithoutFields = do
-  eq (unsafeParse "{\"j1\":{\"j1\":1,\"j2\":\"aap\"}}",unsafeParse "{\"j2\":{}}",Right (J1 {j1 = 1, j2 = "aap"}),Right J2)
-     (toJSON (J1 1 "aap"), toJSON J2, encDec (J1 1 "aap"), encDec J2)
+  bidir "{\"j1\":{\"j1\":1,\"j2\":\"aap\"}}" J1 {j1 = 1, j2 = "aap"}
+  bidir  "{\"j2\":{}}" J2
   eq (S.Choice [S.Object [Field {key = "j1", required = True, content = S.Object [Field {key = "j1", required = True, content = S.Number S.unbounded},Field {key = "j2", required = True, content = S.Value S.unboundedLength }]}],S.Object [Field {key = "j2", required = True, content = S.Object []}]])
      (schema (Proxy :: Proxy J))
   valid $ J1 1 "aap"
@@ -121,8 +115,8 @@ instance ToJSON   L where toJSON = gtoJson
 instance FromJSON L where parseJSON = gparseJson
 instance JSONSchema L where schema = gSchema
 case_sumConstructorWithoutFieldsConstructorWithFields = do
-  eq (unsafeParse "{\"l1\":{}}",unsafeParse "{\"l2\":[1,\"aap\"]}",Right L1,Right (L2 1 "aap"))
-     (toJSON L1, toJSON (L2 1 "aap"), encDec L1, encDec (L2 1 "aap"))
+  bidir "{\"l1\":{}}" L1
+  bidir "{\"l2\":[1,\"aap\"]}" (L2 1 "aap")
   eq (S.Choice [S.Object [Field {key = "l1", required = True, content = S.Object []}],S.Object [Field {key = "l2", required = True, content = S.Tuple [S.Number S.unbounded, S.Value S.unboundedLength]}]])
      (schema (Proxy :: Proxy L))
   valid L1
@@ -133,20 +127,25 @@ instance ToJSON   M where toJSON = gtoJson
 instance FromJSON M where parseJSON = gparseJson
 instance JSONSchema M where schema = gSchema
 case_sumConstructorWithoutFieldsConstructorWithRecursiveField = do
-  eq (unsafeParse "{\"m1\":{}}",unsafeParse "{\"m2\":[1,{\"m1\":{}}]}",unsafeParse "{\"m2\":[1,{\"m2\":[2,{\"m1\":{}}]}]}",Right M1,Right (M2 1 M1),Right (M2 1 (M2 2 M1)))
-     (toJSON M1, toJSON (M2 1 M1), toJSON (M2 1 (M2 2 M1)), encDec M1, encDec (M2 1 M1), encDec (M2 1 (M2 2 M1)))
+  let a = M1
+  let b = M2 1 M1
+  let c = M2 1 (M2 2 M1)
+  bidir "{\"m1\":{}}" a
+  bidir "{\"m2\":[1,{\"m1\":{}}]}" b
+  bidir "{\"m2\":[1,{\"m2\":[2,{\"m1\":{}}]}]}" c
   -- Infinite schema, so we just validate
-  valid $ M1
-  valid $ M2 1 M1
-  valid $ M2 1 (M2 2 M1)
+  valid a
+  valid b
+  valid c
 
 data N = N1 | N2 { n1 :: Int, n2 :: N } deriving (Generic, Show, Eq)
 instance ToJSON   N where toJSON = gtoJson
 instance FromJSON N where parseJSON = gparseJson
 instance JSONSchema N where schema = gSchema
 case_sum_constructorWithoutFields_record = do
-  eq (unsafeParse "{\"n1\":{}}",unsafeParse "{\"n2\":{\"n2\":{\"n1\":{}},\"n1\":1}}",unsafeParse "{\"n2\":{\"n1\":1,\"n2\":{\"n2\":{\"n1\":2,\"n2\":{\"n1\":{}}}}}}",Right N1,Right (N2 {n1 = 1, n2 = N1}),Right (N2 {n1 = 1, n2 = N2 {n1 = 2, n2 = N1}}))
-     (toJSON N1, toJSON (N2 1 N1), toJSON (N2 1 (N2 2 N1)), encDec N1, encDec (N2 1 N1), encDec (N2 1 (N2 2 N1)))
+  bidir "{\"n1\":{}}" N1
+  bidir "{\"n2\":{\"n2\":{\"n1\":{}},\"n1\":1}}" N2 { n1 = 1, n2 = N1 }
+  bidir "{\"n2\":{\"n1\":1,\"n2\":{\"n2\":{\"n1\":2,\"n2\":{\"n1\":{}}}}}}" N2 { n1 = 1, n2 = N2 { n1 = 2, n2 = N1 } }
   -- Infinite schema, so we just validate
   valid $ N1
   valid $ N2 1 (N2 2 N1)
@@ -157,8 +156,7 @@ instance ToJSON   O where toJSON = gtoJson
 instance FromJSON O where parseJSON = gparseJson
 instance JSONSchema O where schema = gSchema
 case_recordListField = do
-  eq (unsafeParse "{\"o\":[1,2,3]}",Right (O {o = [1,2,3]}))
-     (toJSON (O [1,2,3]), encDec (O [1,2,3]))
+  bidir "{\"o\":[1,2,3]}" O {o = [1,2,3]}
   eq (S.Object [Field {key = "o", required = True, content = S.Array S.unboundedLength False (S.Number S.unbounded)}])
      (schema (Proxy :: Proxy O))
   valid $ O [1,2,3]
@@ -168,8 +166,7 @@ instance ToJSON   P where toJSON = gtoJson
 instance FromJSON P where parseJSON = gparseJson
 instance JSONSchema P where schema = gSchema
 case_constructorListField = do
-  eq (unsafeParse "[1,2,3]",Right (P [1,2,3]))
-     (toJSON (P [1,2,3]), encDec (P [1,2,3]))
+  bidir "[1,2,3]" (P [1,2,3])
   eq (S.Array S.unboundedLength False (S.Number S.unbounded))
      (schema (Proxy :: Proxy P))
   valid $ P [1,2,3]
@@ -179,8 +176,7 @@ instance ToJSON   Q where toJSON = gtoJson
 instance FromJSON Q where parseJSON = gparseJson
 instance JSONSchema Q where schema = gSchema
 case_ConstructorSameTypedFields = do
-  eq (unsafeParse "[1,2,3]",Right (Q 1 2 3))
-     (toJSON (Q 1 2 3), encDec (Q 1 2 3))
+  bidir "[1,2,3]" (Q 1 2 3)
   eq (S.Tuple [S.Number S.unbounded, S.Number S.unbounded, S.Number S.unbounded])
      (schema (Proxy :: Proxy Q))
   valid $ Q 1 2 3
@@ -190,8 +186,8 @@ instance ToJSON   T where toJSON = gtoJson
 instance FromJSON T where parseJSON = gparseJson
 instance JSONSchema T where schema = gSchema
 case_RecordMaybeField = do
-  eq (unsafeParse "{}", unsafeParse "{\"r1\":1}",Right (T {r1 = Nothing}),Right (T {r1 = Just 1}))
-     (toJSON (T Nothing), toJSON (T (Just 1)), encDec (T Nothing), encDec (T (Just 1)))
+  bidir "{}" T { r1 = Nothing }
+  bidir "{\"r1\":1}" T { r1 = Just 1 }
   eq (S.Object [Field {key = "r1", required = False, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy T))
   valid $ T Nothing
@@ -202,8 +198,8 @@ instance ToJSON   V where toJSON = gtoJson
 instance FromJSON V where parseJSON = gparseJson
 instance JSONSchema V where schema = gSchema
 case_constructorsWithoutFields = do
-  eq (unsafeParse "\"v1\"",unsafeParse "\"v2\"",Right V1,Right V2)
-     (toJSON V1, toJSON V2, encDec V1, encDec V2)
+  bidir "\"v1\"" V1
+  bidir "\"v2\"" V2
   eq (S.Choice [S.Constant (A.String "v1"), S.Constant (A.String "v2"), S.Constant (A.String "v3")])
      (schema (Proxy :: Proxy V))
   valid V1
@@ -214,8 +210,7 @@ instance ToJSON   W where toJSON = gtoJson
 instance FromJSON W where parseJSON = gparseJson
 instance JSONSchema W where schema = gSchema
 case_recordWithUnderscoredFields = do
-  eq (unsafeParse "{\"underscore1\":1,\"underscore2\":2}",Right (W {underscore1_ = 1, _underscore2 = 2}))
-     (toJSON (W 1 2), encDec (W 1 2))
+  bidir "{\"underscore1\":1,\"underscore2\":2}" W {underscore1_ = 1, _underscore2 = 2}
   eq (S.Object [Field {key = "underscore1", required = True, content = S.Number S.unbounded},Field {key = "underscore2", required = True, content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy W))
   valid $ W 1 2
@@ -227,8 +222,7 @@ instance ToJSON     Strip where toJSON    = gtoJsonWithSettings    stripSettings
 instance FromJSON   Strip where parseJSON = gparseJsonWithSettings stripSettings
 instance JSONSchema Strip where schema    = gSchemaWithSettings    stripSettings
 case_strip = do
-  eq (unsafeParse "{\"a\":1,\"b\":2,\"c\":3,\"strip\":4}",Right (Strip {stripA = 1, strip_B = 2, stripC_ = 3, strip = 4}))
-     (toJSON (Strip 1 2 3 4), encDec (Strip 1 2 3 4))
+  bidir "{\"a\":1,\"b\":2,\"c\":3,\"strip\":4}" Strip { stripA = 1, strip_B = 2, stripC_ = 3, strip = 4 }
   eq (S.Object [ Field { key = "a"    , required = True, content = S.Number S.unbounded }
                , Field { key = "b"    , required = True, content = S.Number S.unbounded }
                , Field { key = "c"    , required = True, content = S.Number S.unbounded }
@@ -239,9 +233,8 @@ case_strip = do
 
 data Stat = StatA | StatB (Maybe Prog)
   deriving (Eq, Generic, Show)
-data Prog = Prog
-  { aff :: !Int
-  } deriving (Eq, Generic, Show)
+data Prog = Prog { aff :: Int }
+  deriving (Eq, Generic, Show)
 instance ToJSON     Prog where toJSON    = gtoJson
 instance FromJSON   Prog where parseJSON = gparseJson
 instance JSONSchema Prog where schema    = gSchema
@@ -250,18 +243,12 @@ instance FromJSON   Stat where parseJSON = gparseJson
 instance JSONSchema Stat where schema    = gSchema
 case_stat = do
   let a = StatB (Just Prog { aff = 1 })
-  eq (unsafeParse "{\"statB\":{\"aff\":1}}", Right  a)
-     (toJSON a                             , encDec a)
+  bidir "{\"statB\":{\"aff\":1}}" a
   valid a
 
   let b = StatB Nothing
-  eq (unsafeParse "{\"statB\":null}", Right  b)
-     (toJSON b                      , encDec b)
-  eq (Choice
-        [ field "statA" True empty
-        , field "statB" True (nullable $ field "aff" True number)
-        ]
-     )
+  bidir "{\"statB\":null}" b
+  eq (field "statA" True empty <|> field "statB" True (nullable $ field "aff" True number))
      (schema (Proxy :: Proxy Stat))
   valid b
 
@@ -272,13 +259,11 @@ instance FromJSON   X where parseJSON = gparseJson
 instance JSONSchema X where schema    = gSchema
 case_constructorWithMaybeField = do
   let a = X (Just 1) 2
-  eq (unsafeParse "[1,2]", Right  a)
-     (toJSON a           , encDec a)
+  bidir "[1,2]" a
   valid a
 
   let b = X Nothing 2
-  eq (unsafeParse "[null,2]", Right  b)
-     (toJSON b              , encDec b)
+  bidir "[null,2]" b
   valid b
 
   eq (Left "when expecting a Int, encountered Boolean instead" :: Either String X)
@@ -293,13 +278,11 @@ instance FromJSON   X1 where parseJSON = gparseJson
 instance JSONSchema X1 where schema    = gSchema
 case_recordWithMaybeField = do
   let a = X1 { x1a = Just 1, x1b = 2 }
-  eq (unsafeParse "{\"x1a\" : 1, \"x1b\" : 2}}", Right  a)
-     (toJSON a                                 , encDec a)
+  bidir "{\"x1a\" : 1, \"x1b\" : 2}}" a
   valid a
 
   let b = X1 Nothing 2
-  eq (unsafeParse "{ \"x1b\" : 2 }", Right b)
-     (toJSON b, encDec b)
+  bidir "{ \"x1b\" : 2 }" b
   eq (Nothing :: Maybe X1)
      (decode "{\"x1a\":true,\"x1b\":2}")
   valid b
@@ -320,8 +303,7 @@ instance JSONSchema X2 where schema = gSchema
 case_recordWithOnlyOneMaybeField = do
   eq (Nothing :: Maybe X2)
      (decode "[{\"x2\":1}]")
-  eq "{\"x2\":1}"
-     (encode X2 { x2 = Just 1 })
+  bidir "{\"x2\":1}" X2 { x2 = Just 1 }
   valid $ X2 (Just 1)
 
 data MaybeStringCon = MaybeStringCon (Maybe String)
@@ -336,8 +318,7 @@ instance FromJSON   MaybeString where parseJSON = gparseJson
 instance JSONSchema MaybeString where schema    = gSchema
 case_maybeString = do
   let a = MaybeStringCon (Just "x")
-  eq (unsafeParse "\"x\"", Right a)
-     (toJSON a, encDec a)
+  bidir "\"x\"" a
 
   eq (nullable value)
      (schema (Proxy :: Proxy MaybeStringCon))
@@ -345,14 +326,12 @@ case_maybeString = do
   valid a
 
   let b = MaybeString { ms = Just "x" }
-  eq (unsafeParse "{\"ms\":\"x\"}", Right b)
-     (toJSON b, encDec b)
+  bidir "{\"ms\":\"x\"}" b
 
   valid b
 
   let c = MaybeString Nothing
-  eq (unsafeParse "{}", Right c)
-     (toJSON c, encDec c)
+  bidir "{}" c
 
   valid c
 
