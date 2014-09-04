@@ -21,7 +21,8 @@ import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
 
 import qualified Data.JSON.Schema as S
-import Data.JSON.Schema (Field (..), JSONSchema (..), gSchema, gSchemaWithSettings)
+import Data.JSON.Schema (Field (..), JSONSchema (..), gSchema, gSchemaWithSettings, Schema (Choice, Tuple))
+import Data.JSON.Schema.Combinators (number, empty, (<|>), field)
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson
@@ -34,14 +35,15 @@ case_constructorWithoutFields = do
   eq (S.Constant (A.String "singleCons"))
      (schema (Proxy :: Proxy SingleCons))
 
-data Record = Record { field :: Int } deriving (Generic, Show, Eq)
+data Record = Record { recordField :: Int } deriving (Generic, Show, Eq)
 instance ToJSON   Record where toJSON    = gtoJson
 instance FromJSON Record where parseJSON = gparseJson
 instance JSONSchema Record where schema = gSchema
 case_record = do
-  eq (unsafeParse "{\"field\":1}"          , Right (Record { field = 1 }))
-     (toJSON Record { field = 1 }, encDec Record { field = 1 })
-  eq (S.Object [S.Field {S.key = "field", S.required = True, S.content = S.Number S.unbounded}])
+  let a = Record { recordField = 1 }
+  eq (unsafeParse "{\"recordField\":1}", Right a)
+     (toJSON a                         , encDec a)
+  eq (S.Object [S.Field {S.key = "recordField", S.required = True, S.content = S.Number S.unbounded}])
      (schema (Proxy :: Proxy Record))
 
 data RecordTwoFields = D { d1 :: Int, d2 :: String } deriving (Generic, Show, Eq)
@@ -211,6 +213,82 @@ case_strip = do
                ])
      (schema (Proxy :: Proxy Strip))
 
+
+data Stat = StatA | StatB (Maybe Prog)
+  deriving (Eq, Generic, Show)
+data Prog = Prog
+  { aff :: !Int
+  } deriving (Eq, Generic, Show)
+instance ToJSON     Prog where toJSON    = gtoJson
+instance FromJSON   Prog where parseJSON = gparseJson
+instance JSONSchema Prog where schema    = gSchema
+instance ToJSON     Stat where toJSON    = gtoJson
+instance FromJSON   Stat where parseJSON = gparseJson
+instance JSONSchema Stat where schema    = gSchema
+case_stat = do
+  let a = StatB (Just Prog { aff = 1 })
+  eq (unsafeParse "{\"statB\":{\"aff\":1}}", Right  a)
+     (toJSON a                             , encDec a)
+  let b = StatB Nothing
+  eq (unsafeParse "{\"statB\":null}", Right  b)
+     (toJSON b                      , encDec b)
+  eq (Choice
+        [ field "statA" True empty
+        , field "statB" True (field "aff" True number <|> S.Null)
+        ]
+     )
+     (schema (Proxy :: Proxy Stat))
+
+-- https://github.com/silkapp/generic-aeson/issues/2
+data X = X (Maybe Int) Int deriving (Eq, Generic, Show)
+instance ToJSON     X where toJSON    = gtoJson
+instance FromJSON   X where parseJSON = gparseJson
+instance JSONSchema X where schema    = gSchema
+case_constructorWithMaybeField = do
+  let a = X (Just 1) 2
+  eq (unsafeParse "[1,2]", Right  a)
+     (toJSON a           , encDec a)
+
+  let b = X Nothing 2
+  eq (unsafeParse "[null,2]", Right  b)
+     (toJSON b              , encDec b)
+
+  eq (Left "when expecting a Int, encountered Boolean instead" :: Either String X)
+     (eitherDecode "[true,2]")
+
+  eq (Tuple [number <|> S.Null, number])
+     (schema (Proxy :: Proxy X))
+
+data X1 = X1 { x1a :: Maybe Int, x1b :: Int } deriving (Eq, Generic, Show)
+instance ToJSON     X1 where toJSON    = gtoJson
+instance FromJSON   X1 where parseJSON = gparseJson
+instance JSONSchema X1 where schema    = gSchema
+case_recordWithMaybeField = do
+  let a = X1 { x1a = Just 1, x1b = 2 }
+  eq (unsafeParse "{\"x1a\" : 1, \"x1b\" : 2}}", Right  a)
+     (toJSON a                                 , encDec a)
+  let b = X1 Nothing 2
+  eq (unsafeParse "{ \"x1b\" : 2 }", Right b)
+     (toJSON b, encDec b)
+  eq (Nothing :: Maybe X1)
+     (decode "{\"x1a\":true,\"x1b\":2}")
+  eq (S.Object [Field "x1a" False number, Field "x1b" True number])
+     (schema (Proxy :: Proxy X1))
+  -- Regression test
+  eq (Nothing :: Maybe X1)
+     (decode "[true,2]")
+
+-- https://github.com/silkapp/generic-aeson/issues/3
+data X2 = X2 { x2 :: Maybe Int }
+  deriving (Eq, Generic, Show)
+instance ToJSON   X2 where toJSON = gtoJson
+instance FromJSON X2 where parseJSON = gparseJson
+case_recordWithOnlyOneMaybeField = do
+  eq (Nothing :: Maybe X2)
+     (decode "[{\"x2\":1}]")
+  eq "{\"x2\":1}"
+     (encode X2 { x2 = Just 1 })
+
 -- Helpers
 
 encDec :: (FromJSON a, ToJSON a) => a -> Either String a
@@ -220,9 +298,9 @@ encDec a = case (parse value . encode) a of
 
 unsafeParse :: ByteString -> Value
 unsafeParse = fromResult . parse value
-
-fromResult (Done _ r) = r
-fromResult _ = error "Boo"
+  where
+    fromResult (Done _ r) = r
+    fromResult _ = error "unsafeParse failed"
 
 eq :: (Show a, Eq a) => a -> a -> Assertion
 eq = (@=?)
@@ -231,4 +309,5 @@ tests :: TestTree
 tests = $testGroupGenerator
 
 main :: IO ()
-main = defaultMain $ testGroup "generic-aeson" [tests]
+main = do
+  defaultMain $ testGroup "generic-aeson" [tests]

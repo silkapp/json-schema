@@ -79,7 +79,14 @@ instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
   gSchema' set enm names p = gSchema' set enm names . fmap unM1 $ p
 
 instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) where
-  gSchema' set _ _ = field (selNameT set (undefined :: M1 S c f p)) False . schema . fmap (fromJust . unK1 . unM1)
+  gSchema' set _ _ =
+    case selNameT set (undefined :: M1 S c f p) of
+      "" -> (<|> Null) . maybeElemSchema -- C (Maybe Int)
+      n  -> field n False . maybeElemSchema -- C { f :: Maybe Int }
+    where
+      maybeElemSchema :: Proxy (M1 S c (K1 i (Maybe a)) p) -> Schema
+      maybeElemSchema = s
+         where s = schema . fmap (fromJust . unK1 . unM1)
 
 -- TODO This instance does not correspond to the generic-aeson representation for Maybe
 instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
