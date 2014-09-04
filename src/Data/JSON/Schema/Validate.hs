@@ -73,7 +73,6 @@ nestPath p m = local (`V.snoc` p) $ m
 validate' :: Schema -> Value -> M ()
 validate' sch val = case (sch, val) of
   ( S.Any       , _          ) -> ok
-  ( S.Null      , A.Null     ) -> ok
   ( S.Boolean   , A.Bool{}   ) -> ok
   ( S.Constant x, _          ) -> cond (Mismatch sch val) (x == val)
   ( S.Number   b, A.Number n ) ->
@@ -105,7 +104,6 @@ validate' sch val = case (sch, val) of
        sequence_ $ zipWith
          (\i -> nestPath (T.pack (show i)) . validate' s)
          [(0::Int)..] (V.toList vs)
-  ( S.Null    {}, _          ) -> err $ Mismatch sch val
   ( S.Boolean {}, _          ) -> err $ Mismatch sch val
   ( S.Number  {}, _          ) -> err $ Mismatch sch val
   ( S.Tuple   {}, _          ) -> err $ Mismatch sch val

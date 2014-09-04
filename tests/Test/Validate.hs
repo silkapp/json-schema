@@ -24,6 +24,8 @@ case_valid = do
   check [] number "1"
   check [] value "\"x\""
   check [] (field "p" True number) "{\"p\" : 1}"
+  check [] (nullable value) "\"x\""
+  check [] (nullable value) "null"
 
 case_lengthBound = do
   check [err (v []) (LengthBoundError (LengthBound (Just 0) (Just 1)) 3)]

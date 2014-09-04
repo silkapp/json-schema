@@ -14,6 +14,7 @@ module Data.JSON.Schema.Combinators
   , enum
   , unbounded
   , unboundedLength
+  , nullable
   ) where
 
 import Data.JSON.Schema.Types
@@ -77,3 +78,7 @@ empty = Object []
 -- | A choice between constant values.
 enum :: [Aeson.Value] -> Schema
 enum = Choice . map Constant
+
+-- | The provided schema or null.
+nullable :: Schema -> Schema
+nullable = (<|> Constant Aeson.Null)

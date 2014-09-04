@@ -17,8 +17,8 @@ import Test.Tasty.HUnit
 import Test.Tasty.TH
 import qualified Data.Aeson.Types as A
 
-import Data.JSON.Schema (Field (..), JSONSchema (..), gSchema, gSchemaWithSettings, Schema (Choice, Tuple))
-import Data.JSON.Schema.Combinators (number, empty, (<|>), field, value)
+import Data.JSON.Schema
+import Data.JSON.Schema.Combinators
 import Test.Util
 import qualified Data.JSON.Schema as S
 import qualified Test.Validate as Validate
@@ -259,7 +259,7 @@ case_stat = do
      (toJSON b                      , encDec b)
   eq (Choice
         [ field "statA" True empty
-        , field "statB" True (field "aff" True number <|> S.Null)
+        , field "statB" True (nullable $ field "aff" True number)
         ]
      )
      (schema (Proxy :: Proxy Stat))
@@ -284,7 +284,7 @@ case_constructorWithMaybeField = do
   eq (Left "when expecting a Int, encountered Boolean instead" :: Either String X)
      (eitherDecode "[true,2]")
 
-  eq (Tuple [number <|> S.Null, number])
+  eq (Tuple [nullable number, number])
      (schema (Proxy :: Proxy X))
 
 data X1 = X1 { x1a :: Maybe Int, x1b :: Int } deriving (Eq, Generic, Show)
@@ -339,7 +339,7 @@ case_maybeString = do
   eq (unsafeParse "\"x\"", Right a)
      (toJSON a, encDec a)
 
-  eq (value <|> S.Null)
+  eq (nullable value)
      (schema (Proxy :: Proxy MaybeStringCon))
 
   valid a

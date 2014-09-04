@@ -81,7 +81,7 @@ instance GJSONSCHEMA f => GJSONSCHEMA (M1 D c f) where
 instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) where
   gSchema' set _ _ =
     case selNameT set (undefined :: M1 S c f p) of
-      Nothing -> (<|> Null)    . maybeElemSchema -- C (Maybe a)        => [a]       or [null]
+      Nothing -> nullable      . maybeElemSchema -- C (Maybe a)        => [a]       or [null]
       Just n  -> field n False . maybeElemSchema -- C { f :: Maybe a } => { f : a } or {}
     where
       maybeElemSchema :: Proxy (M1 S c (K1 i (Maybe a)) p) -> Schema
@@ -91,7 +91,7 @@ instance (Selector c, JSONSchema a) => GJSONSCHEMA (M1 S c (K1 i (Maybe a))) whe
 instance Selector c => GJSONSCHEMA (M1 S c (K1 i (Maybe String))) where
   gSchema' set _ _ _ =
     case selNameT set (undefined :: M1 S c f p) of
-      Nothing -> value <|> Null
+      Nothing -> nullable value
       Just n  -> field n False value
 
 instance (Selector c, GJSONSCHEMA f) => GJSONSCHEMA (M1 S c f) where

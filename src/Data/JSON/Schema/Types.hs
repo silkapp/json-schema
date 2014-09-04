@@ -49,7 +49,6 @@ data Schema =
                          -- indicates no bound.
   | Constant Aeson.Value -- ^ A Value that never changes. Can be
                          -- combined with Choice to create enumerables.
-  | Null                 -- ^ Only null is allowed.
   | Any                  -- ^ Anything value is allowed.
   deriving (Eq, Show)
 
@@ -79,7 +78,7 @@ class JSONSchema a where
   schema :: Proxy a -> Schema
 
 instance JSONSchema () where
-  schema _ = Null
+  schema _ = Constant Aeson.Null
 
 instance JSONSchema Int where
   schema _ = Number unbounded
@@ -100,7 +99,7 @@ instance JSONSchema L.Text where
   schema _ = Value unboundedLength
 
 instance JSONSchema a => JSONSchema (Maybe a) where
-  schema p = Choice [Object [Field "Just" True $ schema $ fmap fromJust p], Object [Field "Nothing" True Null]]
+  schema p = Choice [Object [Field "Just" True $ schema $ fmap fromJust p], Object [Field "Nothing" True (Constant Aeson.Null)]]
 
 instance JSONSchema a => JSONSchema [a] where
   schema = Array unboundedLength False . schema . fmap head
