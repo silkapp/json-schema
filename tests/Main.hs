@@ -28,6 +28,7 @@ import Data.JSON.Schema (Field (..), JSONSchema (..), gSchema, gSchemaWithSettin
 import Data.JSON.Schema.Combinators (number, empty, (<|>), field, value)
 import Data.JSON.Schema.Validate
 import qualified Data.JSON.Schema as S
+import qualified Test.Validate as Validate
 
 data SingleCons = SingleCons deriving (Generic, Show, Eq)
 instance ToJSON   SingleCons where toJSON    = gtoJson
@@ -141,9 +142,10 @@ instance JSONSchema M where schema = gSchema
 case_sumConstructorWithoutFieldsConstructorWithRecursiveField = do
   eq (unsafeParse "{\"m1\":{}}",unsafeParse "{\"m2\":[1,{\"m1\":{}}]}",unsafeParse "{\"m2\":[1,{\"m2\":[2,{\"m1\":{}}]}]}",Right M1,Right (M2 1 M1),Right (M2 1 (M2 2 M1)))
      (toJSON M1, toJSON (M2 1 M1), toJSON (M2 1 (M2 2 M1)), encDec M1, encDec (M2 1 M1), encDec (M2 1 (M2 2 M1)))
--- TODO Recursion
---  eq (S.Any)
---     (schema (Proxy :: Proxy x))
+  -- Infinite schema, so we just validate
+  valid $ M1
+  valid $ M2 1 M1
+  valid $ M2 1 (M2 2 M1)
 
 data N = N1 | N2 { n1 :: Int, n2 :: N } deriving (Generic, Show, Eq)
 instance ToJSON   N where toJSON = gtoJson
@@ -152,8 +154,10 @@ instance JSONSchema N where schema = gSchema
 case_sum_constructorWithoutFields_record = do
   eq (unsafeParse "{\"n1\":{}}",unsafeParse "{\"n2\":{\"n2\":{\"n1\":{}},\"n1\":1}}",unsafeParse "{\"n2\":{\"n1\":1,\"n2\":{\"n2\":{\"n1\":2,\"n2\":{\"n1\":{}}}}}}",Right N1,Right (N2 {n1 = 1, n2 = N1}),Right (N2 {n1 = 1, n2 = N2 {n1 = 2, n2 = N1}}))
      (toJSON N1, toJSON (N2 1 N1), toJSON (N2 1 (N2 2 N1)), encDec N1, encDec (N2 1 N1), encDec (N2 1 (N2 2 N1)))
-  -- TODO Recursive types produce infinite schemas
-  -- schema (Proxy :: Proxy N) @=? schema (Proxy :: Proxy N)
+  -- Infinite schema, so we just validate
+  valid $ N1
+  valid $ N2 1 (N2 2 N1)
+  valid $ N2 1 N1
 
 data O = O { o :: [Int] } deriving (Generic, Show, Eq)
 instance ToJSON   O where toJSON = gtoJson
@@ -394,4 +398,4 @@ tests = $testGroupGenerator
 
 main :: IO ()
 main = do
-  defaultMain $ testGroup "generic-aeson" [tests]
+  defaultMain $ testGroup "generic-aeson" [tests, Validate.tests]

@@ -47,6 +47,7 @@ test-suite json-schema-generic-aeson-tests
   hs-source-dirs:    tests
   main-is:           Main.hs
   type:              exitcode-stdio-1.0
+  other-modules:     Test.Validate
   build-depends:
       base
     , aeson >= 0.7 && < 0.9

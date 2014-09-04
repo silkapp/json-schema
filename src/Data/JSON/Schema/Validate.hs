@@ -2,7 +2,12 @@
     GeneralizedNewtypeDeriving
   , ScopedTypeVariables
   #-}
-module Data.JSON.Schema.Validate (isValid, validate) where
+module Data.JSON.Schema.Validate
+  ( isValid
+  , validate
+  , Err (..)
+  , Err' (..)
+  ) where
 
 import Control.Applicative
 import Control.Monad.RWS.Strict
@@ -19,17 +24,25 @@ import qualified Data.Vector         as V
 import Data.JSON.Schema (Schema)
 import qualified Data.JSON.Schema as S
 
+-- | Validates a value against a schema returning errors.
+validate :: Schema -> Value -> Vector Err
+validate s v = (\(_,_,errs) -> errs) $ runRWS (unM $ validate' s v) V.empty ()
+
+-- | Predicate version of 'validate'.
+isValid :: Schema -> Value -> Bool
+isValid s v = V.null $ validate s v
+
 data Err = Err (Vector Text) Err'
   deriving (Eq, Show)
 
 data Err'
-  = Mismatch Schema Value
-  | BoundError S.Bound Scientific
-  | LengthBoundError S.LengthBound Int
-  | TupleLength Int (Vector Value)
+  = Mismatch             Schema Value
+  | BoundError           S.Bound Scientific
+  | LengthBoundError     S.LengthBound Int
+  | TupleLength          Int (Vector Value)
   | MissingRequiredField Text
-  | ChoiceError (Vector (Vector Err)) Value
-  | NonUniqueArray (Vector Value)
+  | ChoiceError          (Vector (Vector Err)) Value
+  | NonUniqueArray       (Vector Value)
   deriving (Eq, Show)
 
 newtype M a = M { unM :: RWS (Vector Text) (Vector Err) () a }
@@ -51,12 +64,6 @@ err e = do
 
 cond :: Err' -> Bool -> M ()
 cond e p = if p then ok else err e
-
-isValid :: Schema -> Value -> Bool
-isValid s v = V.null $ validate s v
-
-validate :: Schema -> Value -> Vector Err
-validate s v = (\(_,_,errs) -> errs) $ runRWS (unM $ validate' s v) V.empty ()
 
 nestPath :: Text -> M a -> M a
 nestPath p m = local (`V.snoc` p) $ m
@@ -104,7 +111,7 @@ validate' sch val = case (sch, val) of
   ( S.Array   {}, _          ) -> err $ Mismatch sch val
 
 validateField :: S.Field -> A.Object -> M ()
-validateField f o = maybe req (validate' $ S.content f) $ H.lookup (S.key f) o
+validateField f o = maybe req (nestPath (S.key f) . validate' (S.content f)) $ H.lookup (S.key f) o
   where
     req | not (S.required f) = ok
         | otherwise          = err $ MissingRequiredField (S.key f)
