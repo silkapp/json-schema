@@ -12,12 +12,12 @@ module Data.JSON.Schema.Validate
 import Control.Applicative
 import Control.Monad.RWS.Strict
 import Data.Aeson (Value)
+import Data.HashMap.Strict (HashMap)
 import Data.Scientific
 import Data.Text (Text)
 import Data.Vector (Vector)
 import qualified Data.Aeson          as A
 import qualified Data.HashMap.Strict as H
-import qualified Data.HashSet        as HS
 import qualified Data.Text           as T
 import qualified Data.Vector         as V
 
@@ -44,8 +44,7 @@ data ErrorType
   | TupleLength          Int Int                                 -- ^ Expected and actual tuple length.
   | MissingRequiredField Text                                    -- ^ A required field is missing.
   | ChoiceError          (Vector (Vector ValidationError)) Value -- ^ All choices failed, contains the error of each branch.
-  | NonUniqueArray       (Vector Value)                          -- ^ An array with duplicate elements. Currently contains the whole array.
-                                                                 -- TODO this should only contain the intersection
+  | NonUniqueArray       (HashMap Value Int)                    -- ^ The elements in the array that are duplicated with the number of occurences (at least 2).
   deriving (Eq, Show)
 
 newtype M a = M { unM :: RWS (Vector Text) (Vector ValidationError) () a }
@@ -122,9 +121,10 @@ validateField f o = maybe req (nestPath (S.key f) . validate' (S.content f)) $ H
         | otherwise          = err $ MissingRequiredField (S.key f)
 
 unique :: Vector Value -> M ()
-unique vs =
-  when (not . (== V.length vs) . HS.size . HS.fromList . V.toList $ vs) $
-    err (NonUniqueArray vs)
+unique vs = do
+  let dups = H.filter (>= 2) . V.foldl' (\h v -> H.insertWith (+) v 1 h) H.empty $ vs
+  unless (H.null dups) $
+    err (NonUniqueArray dups)
 
 inLower :: S.Bound -> Scientific -> M ()
 inLower b v =
