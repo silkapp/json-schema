@@ -5,8 +5,8 @@
 module Data.JSON.Schema.Validate
   ( isValid
   , validate
-  , Err (..)
-  , Err' (..)
+  , ValidationError (..)
+  , ErrorType (..)
   ) where
 
 import Control.Applicative
@@ -25,44 +25,47 @@ import Data.JSON.Schema (Schema)
 import qualified Data.JSON.Schema as S
 
 -- | Validates a value against a schema returning errors.
-validate :: Schema -> Value -> Vector Err
+validate :: Schema -> Value -> Vector ValidationError
 validate s v = (\(_,_,errs) -> errs) $ runRWS (unM $ validate' s v) V.empty ()
 
 -- | Predicate version of 'validate'.
 isValid :: Schema -> Value -> Bool
 isValid s v = V.null $ validate s v
 
-data Err = Err (Vector Text) Err'
+data ValidationError = ValidationError
+  { path      :: Vector Text -- ^ The Path to the property where the error occured, empty if the error is on the top level.
+  , errorType :: ErrorType
+  } deriving (Eq, Show)
+
+data ErrorType
+  = Mismatch             Schema Value                            -- ^ General type error.
+  | BoundError           S.Bound Scientific                      -- ^ Number out of bounds.
+  | LengthBoundError     S.LengthBound Int                       -- ^ String or Array out of bounds.
+  | TupleLength          Int Int                                 -- ^ Expected and actual tuple length.
+  | MissingRequiredField Text                                    -- ^ A required field is missing.
+  | ChoiceError          (Vector (Vector ValidationError)) Value -- ^ All choices failed, contains the error of each branch.
+  | NonUniqueArray       (Vector Value)                          -- ^ An array with duplicate elements. Currently contains the whole array.
+                                                                 -- TODO this should only contain the intersection
   deriving (Eq, Show)
 
-data Err'
-  = Mismatch             Schema Value
-  | BoundError           S.Bound Scientific
-  | LengthBoundError     S.LengthBound Int
-  | TupleLength          Int (Vector Value)
-  | MissingRequiredField Text
-  | ChoiceError          (Vector (Vector Err)) Value
-  | NonUniqueArray       (Vector Value)
-  deriving (Eq, Show)
-
-newtype M a = M { unM :: RWS (Vector Text) (Vector Err) () a }
+newtype M a = M { unM :: RWS (Vector Text) (Vector ValidationError) () a }
   deriving
     ( Functor
     , Applicative
     , Monad
-    , MonadWriter (Vector Err)
+    , MonadWriter (Vector ValidationError)
     , MonadReader (Vector Text)
     )
 
 ok :: M ()
 ok = return ()
 
-err :: Err' -> M ()
+err :: ErrorType -> M ()
 err e = do
-  path <- ask
-  tell . V.singleton . Err path $ e
+  pth <- ask
+  tell . V.singleton . ValidationError pth $ e
 
-cond :: Err' -> Bool -> M ()
+cond :: ErrorType -> Bool -> M ()
 cond e p = if p then ok else err e
 
 nestPath :: Text -> M a -> M a
@@ -78,7 +81,9 @@ validate' sch val = case (sch, val) of
     do inLower b n
        inUpper b n
   ( S.Tuple   xs, A.Array vs ) ->
-    do cond (TupleLength (length xs) vs) (length xs == V.length vs)
+    do let vlen = V.length vs
+       let xlen = length xs
+       cond (TupleLength xlen vlen) (xlen == vlen)
        sequence_ $ zipWith3
          (\i s -> nestPath (T.pack (show i)) . validate' s)
          [(0::Int)..] xs (V.toList vs)

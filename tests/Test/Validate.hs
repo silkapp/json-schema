@@ -26,26 +26,28 @@ case_valid = do
   check [] (field "p" True number) "{\"p\" : 1}"
 
 case_lengthBound = do
-  check [Err (v []) (LengthBoundError (LengthBound (Just 0) (Just 1)) 3)]
+  check [err (v []) (LengthBoundError (LengthBound (Just 0) (Just 1)) 3)]
         (Value (LengthBound (Just 0) (Just 1)))
         "\"xyz\""
 
 case_requiredProp = do
-  check [Err (v []) (MissingRequiredField "a")]
+  check [err (v []) (MissingRequiredField "a")]
         (field "a" True number)
         "{}"
-  check [Err (v []) (MissingRequiredField "a")]
+  check [err (v []) (MissingRequiredField "a")]
         (field "a" True (field "b" True number))
         "{}"
-  check [Err (v ["a"]) (MissingRequiredField "b")]
+  check [err (v ["a"]) (MissingRequiredField "b")]
         (field "a" True (field "b" True number))
         "{\"a\":{}}"
-  check [Err (v ["a","b"]) (MissingRequiredField "c")]
+  check [err (v ["a","b"]) (MissingRequiredField "c")]
         (field "a" True (field "b" True (field "c" True number)))
         "{\"a\":{\"b\":{}}}"
 
-check :: [Err] -> Schema -> ByteString -> Assertion
+check :: [ValidationError] -> Schema -> ByteString -> Assertion
 check errs s val = v errs @=? validate s (unsafeParse val)
+
+err = ValidationError
 
 v :: [a] -> Vector a
 v = V.fromList
