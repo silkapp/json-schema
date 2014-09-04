@@ -5,7 +5,7 @@
   #-}
 module Test.Validate (tests) where
 
-import Data.Aeson as A
+import Data.ByteString.Lazy
 import Data.Vector as V
 
 import Test.Tasty
@@ -21,28 +21,31 @@ tests :: TestTree
 tests = $testGroupGenerator
 
 case_valid = do
-  val' number (toJSON (1::Int))
-  val' value (unsafeParse "\"x\"")
-  val' (field "p" True number) (unsafeParse "{\"p\" : 1}")
+  check [] number "1"
+  check [] value "\"x\""
+  check [] (field "p" True number) "{\"p\" : 1}"
 
 case_lengthBound = do
-  eq (v [Err (v []) (LengthBoundError (LengthBound (Just 0) (Just 1)) 3)])
-     (validate (Value (LengthBound (Just 0) (Just 1))) (unsafeParse "\"xyz\""))
+  check [Err (v []) (LengthBoundError (LengthBound (Just 0) (Just 1)) 3)]
+        (Value (LengthBound (Just 0) (Just 1)))
+        "\"xyz\""
 
 case_requiredProp = do
-  eq (v [Err (v []) (MissingRequiredField "a")])
-     (validate (field "a" True number)
-               (unsafeParse "{}"))
-  eq (v [Err (v []) (MissingRequiredField "a")])
-     (validate (field "a" True (field "b" True number))
-               (unsafeParse "{}"))
-  eq (v [Err (v ["a"]) (MissingRequiredField "b")])
-     (validate (field "a" True (field "b" True number))
-               (unsafeParse "{\"a\":{}}"))
-  eq (v [Err (v ["a","b"]) (MissingRequiredField "c")])
-     (validate (field "a" True (field "b" True (field "c" True number)))
-               (unsafeParse "{\"a\":{\"b\":{}}}"))
+  check [Err (v []) (MissingRequiredField "a")]
+        (field "a" True number)
+        "{}"
+  check [Err (v []) (MissingRequiredField "a")]
+        (field "a" True (field "b" True number))
+        "{}"
+  check [Err (v ["a"]) (MissingRequiredField "b")]
+        (field "a" True (field "b" True number))
+        "{\"a\":{}}"
+  check [Err (v ["a","b"]) (MissingRequiredField "c")]
+        (field "a" True (field "b" True (field "c" True number)))
+        "{\"a\":{\"b\":{}}}"
 
-val' s val = v [] @=? validate s val
+check :: [Err] -> Schema -> ByteString -> Assertion
+check errs s val = v errs @=? validate s (unsafeParse val)
 
+v :: [a] -> Vector a
 v = V.fromList
