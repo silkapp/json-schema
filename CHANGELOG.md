@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0.0
+
+* Removed the `Null` constructor from `Schema`, use `Data.JSON.Schema.Combinators.nullable` instead.
+
+* Added the `Validation` module that can be used to validate a json
+  object against a schema and to get descriptive error messages.
+
+* Updates for `Maybe` fixes in `generic-aeson 0.2.0.0` including more
+  thorough test cases.
+
 #### 0.6.1.1
 
 * Bugfix: Remove underscores from fields and constructors in generated schemas to match generic-aeson.
