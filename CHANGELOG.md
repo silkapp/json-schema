@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.0.1
+
+* Drop support for old tasty versions
+
 ## 0.7.0.0
 
 * Removed the `Null` constructor from `Schema`, use `Data.JSON.Schema.Combinators.nullable` instead.
