@@ -59,8 +59,8 @@ test-suite json-schema-generic-aeson-tests
     , generic-aeson == 0.2.*
     , json-schema
     , tagged >= 0.2 && < 0.8
-    , tasty >= 0.8 && < 0.10
-    , tasty-hunit >= 0.8 && < 0.10
+    , tasty == 0.10.*
+    , tasty-hunit == 0.9.*
     , tasty-th == 0.1.*
     , text >= 0.10 && < 1.2
     , vector == 0.10.*
