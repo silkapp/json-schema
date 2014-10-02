@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.0.2
+
+* Allow time 1.5.*
+
 #### 0.7.0.1
 
 * Drop support for old tasty versions
