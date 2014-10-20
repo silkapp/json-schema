@@ -19,6 +19,7 @@ import qualified Data.Aeson.Types as A
 
 import Data.JSON.Schema
 import Data.JSON.Schema.Combinators
+import Example ()
 import Test.Util
 import qualified Data.JSON.Schema as S
 import qualified Test.Validate as Validate

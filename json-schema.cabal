@@ -2,6 +2,11 @@ name:                json-schema
 version:             0.7.0.2
 synopsis:            Types and type classes for defining JSON schemas.
 description:         Types and type classes for defining JSON schemas.
+                     .
+                     /Documentation/
+                     .
+                     See <https://github.com/silkapp/json-schema/blob/master/README.md>
+                     .
 license:             BSD3
 license-file:        LICENSE
 author:              Silk
@@ -44,10 +49,11 @@ library
 
 test-suite json-schema-generic-aeson-tests
   ghc-options:       -Wall
-  hs-source-dirs:    tests
+  hs-source-dirs:    tests, examples
   main-is:           Main.hs
   type:              exitcode-stdio-1.0
   other-modules:
+    Example
     Test.Util
     Test.Validate
   build-depends:
