@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.7.1.0
+
+* Export `GJSONSchema` type to allow clients to write type signatures for `gSchema` and `gSchemaWithSettings`.
+
 #### 0.7.0.2
 
 * Allow time 1.5.*
