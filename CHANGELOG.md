@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.1.1
+
+* Allow `generic-deriving 1.7.*`
+
 ### 0.7.1.0
 
 * Export `GJSONSchema` type to allow clients to write type signatures for `gSchema` and `gSchemaWithSettings`.
