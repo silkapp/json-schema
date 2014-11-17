@@ -14,6 +14,7 @@ module Data.JSON.Schema.Types
   , unboundedLength
   ) where
 
+import Data.Fixed
 import Data.Maybe
 import Data.Proxy
 import Data.String
@@ -87,6 +88,15 @@ instance JSONSchema Integer where
   schema _ = Number unbounded
 
 instance JSONSchema Word32 where
+  schema _ = Number unbounded
+
+instance JSONSchema Float where
+  schema _ = Number unbounded
+
+instance JSONSchema Double where
+  schema _ = Number unbounded
+
+instance HasResolution a => JSONSchema (Fixed a) where
   schema _ = Number unbounded
 
 instance JSONSchema Bool where
