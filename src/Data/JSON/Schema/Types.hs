@@ -2,6 +2,7 @@
     FlexibleInstances
   , OverloadedStrings
   , TypeSynonymInstances
+  , ScopedTypeVariables
   #-}
 -- | Types for defining JSON schemas.
 module Data.JSON.Schema.Types
@@ -15,13 +16,14 @@ module Data.JSON.Schema.Types
   ) where
 
 import Data.Fixed
+import Data.Int
 import Data.Maybe
 import Data.Proxy
 import Data.String
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
 import Data.Vector (Vector)
-import Data.Word (Word32)
+import Data.Word
 import qualified Data.Aeson.Types    as Aeson
 import qualified Data.HashMap.Strict as H
 import qualified Data.Map            as M
@@ -68,6 +70,11 @@ data LengthBound = LengthBound
 unbounded :: Bound
 unbounded = Bound Nothing Nothing
 
+integralSchema :: forall a. (Bounded a, Integral a) => Proxy a -> Schema
+integralSchema _ =
+  Number $ Bound (Just $ fromIntegral (minBound::a))
+                 (Just $ fromIntegral (maxBound::a))
+
 unboundedLength :: LengthBound
 unboundedLength = LengthBound Nothing Nothing
 
@@ -87,8 +94,32 @@ instance JSONSchema Int where
 instance JSONSchema Integer where
   schema _ = Number unbounded
 
-instance JSONSchema Word32 where
+instance JSONSchema Int8 where
+  schema = integralSchema
+
+instance JSONSchema Int16 where
+  schema = integralSchema
+
+instance JSONSchema Int32 where
   schema _ = Number unbounded
+
+instance JSONSchema Int64 where
+  schema _ = Number unbounded
+
+instance JSONSchema Word where
+  schema _ = Number (Bound (Just 0) Nothing)
+
+instance JSONSchema Word8 where
+  schema = integralSchema
+
+instance JSONSchema Word16 where
+  schema = integralSchema
+
+instance JSONSchema Word32 where
+  schema _ = Number (Bound (Just 0) Nothing)
+
+instance JSONSchema Word64 where
+  schema _ = Number (Bound (Just 0) Nothing)
 
 instance JSONSchema Float where
   schema _ = Number unbounded
