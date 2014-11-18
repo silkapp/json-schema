@@ -19,6 +19,7 @@ import Data.Fixed
 import Data.Int
 import Data.Maybe
 import Data.Proxy
+import Data.Scientific
 import Data.String
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
@@ -128,6 +129,9 @@ instance JSONSchema Double where
   schema _ = Number unbounded
 
 instance HasResolution a => JSONSchema (Fixed a) where
+  schema _ = Number unbounded
+
+instance JSONSchema Scientific where
   schema _ = Number unbounded
 
 instance JSONSchema Bool where
