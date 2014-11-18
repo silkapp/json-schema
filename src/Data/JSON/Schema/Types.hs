@@ -17,6 +17,7 @@ module Data.JSON.Schema.Types
 import Data.Fixed
 import Data.Maybe
 import Data.Proxy
+import Data.Scientific
 import Data.String
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
@@ -55,8 +56,8 @@ data Schema =
 
 -- | A type for bounds on number domains. Use Nothing when no lower or upper bound makes sense
 data Bound = Bound
-  { lower :: Maybe Int
-  , upper :: Maybe Int
+  { lower :: Maybe Scientific
+  , upper :: Maybe Scientific
   } deriving (Eq, Show)
 
 -- | A type for bounds on lengths for strings and arrays. Use Nothing when no lower or upper bound makes sense
