@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.7.3.0
+
+* Add `JSONSchema` instances for all standard Num types and Scientific.
+
 ### 0.7.2.0
 
 * Add `JSONSchema` instances for Double, Float, Fixed
