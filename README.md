@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/silkapp/json-schema.svg?branch=master)](https://travis-ci.org/silkapp/json-schema)
 
-`json-schema` is like XML schemas, but for JSON.
+`json-schema` is like XML schemas, but for JSON. It's haskell specific and has no relation to json-schema.org.
 
 The package provides
 
