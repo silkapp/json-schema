@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.3.1
+
+* test-suite: Allow `aeson-utils 0.3.*`
+
 ### 0.7.3.0
 
 * Add `JSONSchema` instances for all standard Num types and Scientific.
