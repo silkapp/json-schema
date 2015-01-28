@@ -59,7 +59,7 @@ test-suite json-schema-generic-aeson-tests
   build-depends:
       base
     , aeson >= 0.7 && < 0.9
-    , aeson-utils == 0.2.*
+    , aeson-utils >= 0.2 && < 0.4
     , attoparsec >= 0.10 && < 0.13
     , bytestring >= 0.10 && < 0.12
     , generic-aeson == 0.2.*
