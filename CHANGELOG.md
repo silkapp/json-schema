@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.3.2
+
+* Allow `tagged 0.8.*`
+
 #### 0.7.3.1
 
 * test-suite: Allow `aeson-utils 0.3.*`
