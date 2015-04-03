@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.3.3
+
+* Allow `tagged 0.8.*` in test-suit
+
 #### 0.7.3.2
 
 * Allow `tagged 0.8.*`
