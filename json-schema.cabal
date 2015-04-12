@@ -34,18 +34,21 @@ library
     Data.JSON.Schema.Types
     Data.JSON.Schema.Validate
   build-depends:
-      base == 4.*
+      base >= 4.4 && < 5
     , aeson >= 0.7 && < 0.9
     , containers >= 0.3 && < 0.6
     , generic-aeson == 0.2.*
     , generic-deriving >= 1.6 && < 1.8
     , mtl >= 2.1 && < 2.3
     , scientific == 0.3.*
-    , tagged >= 0.2 && < 0.9
     , text >= 0.10 && < 1.3
     , time >= 1.2 && < 1.6
     , unordered-containers == 0.2.*
     , vector == 0.10.*
+  if impl(ghc < 7.8)
+    build-depends: tagged >= 0.2 && < 0.9
+  if impl(ghc < 7.6)
+    build-depends: ghc-prim == 0.2.*
 
 test-suite json-schema-generic-aeson-tests
   ghc-options:       -Wall
@@ -57,16 +60,19 @@ test-suite json-schema-generic-aeson-tests
     Test.Util
     Test.Validate
   build-depends:
-      base
+      base >= 4.4 && < 5
     , aeson >= 0.7 && < 0.9
     , aeson-utils >= 0.2 && < 0.4
     , attoparsec >= 0.10 && < 0.13
     , bytestring >= 0.10 && < 0.12
     , generic-aeson == 0.2.*
     , json-schema
-    , tagged >= 0.2 && < 0.9
     , tasty == 0.10.*
     , tasty-hunit == 0.9.*
     , tasty-th == 0.1.*
     , text >= 0.10 && < 1.3
     , vector == 0.10.*
+  if impl(ghc < 7.8)
+    build-depends: tagged >= 0.2 && < 0.9
+  if impl(ghc < 7.6)
+    build-depends: ghc-prim == 0.2.*
