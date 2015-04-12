@@ -1,8 +1,12 @@
 # Changelog
 
+#### 0.7.3.4
+
+* Fix compilation on GHC 7.2 and 7.4
+
 #### 0.7.3.3
 
-* Allow `tagged 0.8.*` in test-suit
+* Allow `tagged 0.8.*` in test-suite
 
 #### 0.7.3.2
 
