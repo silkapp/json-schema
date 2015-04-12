@@ -45,8 +45,10 @@ library
     , time >= 1.2 && < 1.6
     , unordered-containers == 0.2.*
     , vector == 0.10.*
+  -- Data.Proxy.Proxy
   if impl(ghc < 7.8)
     build-depends: tagged >= 0.2 && < 0.9
+  -- GHC Generics
   if impl(ghc < 7.6)
     build-depends: ghc-prim == 0.2.*
 
