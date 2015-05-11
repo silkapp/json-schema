@@ -1,5 +1,5 @@
 name:                json-schema
-version:             0.7.3.4
+version:             0.7.3.5
 synopsis:            Types and type classes for defining JSON schemas.
 description:         Types and type classes for defining JSON schemas.
                      .
@@ -65,7 +65,7 @@ test-suite json-schema-generic-aeson-tests
       base >= 4.4 && < 5
     , aeson >= 0.7 && < 0.9
     , aeson-utils >= 0.2 && < 0.4
-    , attoparsec >= 0.10 && < 0.13
+    , attoparsec >= 0.10 && < 0.14
     , bytestring >= 0.10 && < 0.12
     , generic-aeson == 0.2.*
     , json-schema
