@@ -1,5 +1,5 @@
 name:                json-schema
-version:             0.7.3.5
+version:             0.7.3.6
 synopsis:            Types and type classes for defining JSON schemas.
 description:         Types and type classes for defining JSON schemas.
                      .
@@ -35,7 +35,7 @@ library
     Data.JSON.Schema.Validate
   build-depends:
       base >= 4.4 && < 5
-    , aeson >= 0.7 && < 0.9
+    , aeson >= 0.7 && < 0.10
     , containers >= 0.3 && < 0.6
     , generic-aeson == 0.2.*
     , generic-deriving >= 1.6 && < 1.8
@@ -63,7 +63,7 @@ test-suite json-schema-generic-aeson-tests
     Test.Validate
   build-depends:
       base >= 4.4 && < 5
-    , aeson >= 0.7 && < 0.9
+    , aeson >= 0.7 && < 0.10
     , aeson-utils >= 0.2 && < 0.4
     , attoparsec >= 0.10 && < 0.14
     , bytestring >= 0.10 && < 0.12
