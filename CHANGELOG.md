@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.3.7
+
+* Allow `generic-deriving 1.8.*`
+
 #### 0.7.3.6
 
 * Allow `aeson 0.9.*`
