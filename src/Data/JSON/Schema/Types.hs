@@ -159,7 +159,7 @@ instance (IsString k, JSONSchema v) => JSONSchema (H.HashMap k v) where
   schema = Map . schema . fmap (head . H.elems)
 
 instance JSONSchema UTCTime where
-  schema _ = Value LengthBound { lowerLength = Just 20, upperLength = Just 24 }
+  schema _ = Value LengthBound { lowerLength = Just 20, upperLength = Just 33 }
 
 instance JSONSchema a => JSONSchema (S.Set a) where
   schema = Array unboundedLength True . schema . fmap S.findMin
