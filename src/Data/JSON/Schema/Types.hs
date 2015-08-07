@@ -1,8 +1,8 @@
 {-# LANGUAGE
     FlexibleInstances
   , OverloadedStrings
-  , TypeSynonymInstances
   , ScopedTypeVariables
+  , TypeSynonymInstances
   #-}
 -- | Types for defining JSON schemas.
 module Data.JSON.Schema.Types
@@ -163,6 +163,9 @@ instance JSONSchema UTCTime where
 
 instance JSONSchema a => JSONSchema (S.Set a) where
   schema = Array unboundedLength True . schema . fmap S.findMin
+
+instance JSONSchema Aeson.Value where
+  schema _ = Any
 
 instance (JSONSchema a, JSONSchema b) => JSONSchema (a, b) where
   schema s = Tuple
