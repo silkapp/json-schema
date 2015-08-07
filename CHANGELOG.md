@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.7.4.0
+
+* Raise upper length limit of `UTCTime` since aeson-0.9 increased the precision.
+* Add `JSONSchema Aeson.Value` instance.
+
 #### 0.7.3.7
 
 * Allow `generic-deriving 1.8.*`
