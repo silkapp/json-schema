@@ -69,7 +69,7 @@ test-suite json-schema-generic-aeson-tests
     , bytestring >= 0.10 && < 0.12
     , generic-aeson == 0.2.*
     , json-schema
-    , tasty == 0.10.*
+    , tasty >= 0.10 && < 0.12
     , tasty-hunit == 0.9.*
     , tasty-th == 0.1.*
     , text >= 0.10 && < 1.3
