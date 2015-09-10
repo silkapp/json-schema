@@ -68,7 +68,7 @@ cond :: ErrorType -> Bool -> M ()
 cond e p = if p then ok else err e
 
 nestPath :: Text -> M a -> M a
-nestPath p m = local (`V.snoc` p) $ m
+nestPath p = local (`V.snoc` p)
 
 validate' :: Schema -> Value -> M ()
 validate' sch val = case (sch, val) of
@@ -101,7 +101,7 @@ validate' sch val = case (sch, val) of
     do inLowerLength b (V.length vs)
        inUpperLength b (V.length vs)
        if u then unique vs else ok
-       sequence_ $ zipWith
+       zipWithM_
          (\i -> nestPath (T.pack (show i)) . validate' s)
          [(0::Int)..] (V.toList vs)
   ( S.Boolean {}, _          ) -> err $ Mismatch sch val
@@ -126,24 +126,24 @@ unique vs = do
 
 inLower :: S.Bound -> Scientific -> M ()
 inLower b v =
-  if (maybe True ((<= v) . fromIntegral) . S.lower $ b)
+  if maybe True ((<= v) . fromIntegral) . S.lower $ b
     then ok
     else err (BoundError b v)
 
 inUpper :: S.Bound -> Scientific -> M ()
 inUpper b v =
-  if (maybe True ((>= v) . fromIntegral) . S.upper $ b)
+  if maybe True ((>= v) . fromIntegral) . S.upper $ b
     then ok
     else err (BoundError b v)
 
 inLowerLength :: S.LengthBound -> Int -> M ()
 inLowerLength b v =
-  if (maybe True (<= v) . S.lowerLength $ b)
+  if maybe True (<= v) . S.lowerLength $ b
     then ok
     else err (LengthBoundError b v)
 
 inUpperLength :: S.LengthBound -> Int -> M ()
 inUpperLength b v =
-  if (maybe True (>= v) . S.upperLength $ b)
+  if maybe True (>= v) . S.upperLength $ b
     then ok
     else err (LengthBoundError b v)

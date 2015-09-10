@@ -55,8 +55,8 @@ instance GJSONSchema U1 where
   gSchema' _ _ _ _ = empty
 
 instance (GJSONSchema f, GJSONSchema g) => GJSONSchema (f :+: g) where
-  gSchema' set enm names p =
-        gSchema' set enm names (gL <$> p)
+  gSchema' set enm names p
+     =  gSchema' set enm names (gL <$> p)
     <|> gSchema' set enm names (gR <$> p)
     where
       gL :: (f :+: g) r -> f r
@@ -65,19 +65,28 @@ instance (GJSONSchema f, GJSONSchema g) => GJSONSchema (f :+: g) where
       gR _ = undefined
 
 instance (GJSONSchema f, GJSONSchema g) => GJSONSchema (f :*: g) where
-  gSchema' set enm names p = gSchema' set enm names (gFst <$> p) `merge` gSchema' set enm names (gSnd <$> p)
+  gSchema' set enm names p = gSchema' set enm names (gFst <$> p)
+                     `merge` gSchema' set enm names (gSnd <$> p)
+    where
+      gFst :: (f :*: g) r -> f r
+      gFst (f :*: _) = f
+
+      gSnd :: (f :*: g) r -> g r
+      gSnd (_ :*: g) = g
 
 instance (Constructor c, GJSONSchema f) => GJSONSchema (M1 C c f) where
-  gSchema' set True _ = toConstant set . conNameT set . pv
-  gSchema' set enm names = wrap . gSchema' set enm names . fmap unM1
-    where
-      wrap = if multipleCons names
-             then field (conNameT set (undefined :: M1 C c f p)) True
-             else id
+  gSchema' set enm names
+    | enm       = toConstant set . conNameT set . pv
+    | otherwise = wrap . gSchema' set enm names . fmap unM1
+        where
+          wrap = if multipleCons names
+                   then field (conNameT set (undefined :: M1 C c f p)) True
+                   else id
 
 instance GJSONSchema f => GJSONSchema (M1 D c f) where
-  gSchema' set True names p | multipleCons names = const (Choice . fmap (toConstant set) $ names) $ p
-  gSchema' set enm names p = gSchema' set enm names . fmap unM1 $ p
+  gSchema' set enm names p
+    | enm && multipleCons names = Choice $ toConstant set <$> names
+    | otherwise                 = gSchema' set enm names . fmap unM1 $ p
 
 instance (Selector c, JSONSchema a) => GJSONSchema (M1 S c (K1 i (Maybe a))) where
   gSchema' set _ _ =
@@ -87,7 +96,8 @@ instance (Selector c, JSONSchema a) => GJSONSchema (M1 S c (K1 i (Maybe a))) whe
     where
       maybeElemSchema :: Proxy (M1 S c (K1 i (Maybe a)) p) -> Schema
       maybeElemSchema = s
-         where s = schema . fmap (fromJust . unK1 . unM1)
+         where
+           s = schema . fmap (fromJust . unK1 . unM1)
 
 instance Selector c => GJSONSchema (M1 S c (K1 i (Maybe String))) where
   gSchema' set _ _ _ =
@@ -98,16 +108,11 @@ instance Selector c => GJSONSchema (M1 S c (K1 i (Maybe String))) where
 instance (Selector c, GJSONSchema f) => GJSONSchema (M1 S c f) where
   gSchema' set enm names = wrap . gSchema' set enm names . fmap unM1
     where
-      wrap = maybe id (\s -> field s True) $ selNameT set (undefined :: M1 S c f p)
+      wrap = maybe id (`field` True) $ selNameT set (undefined :: M1 S c f p)
 
 toConstant :: Settings -> Text -> Schema
 toConstant set = Constant . Aeson.String . formatLabel set
 
-gFst :: (f :*: g) r -> f r
-gFst (f :*: _) = f
-
-gSnd :: (f :*: g) r -> g r
-gSnd (_ :*: g) = g
 
 pv :: Proxy a -> a
 pv _ = undefined
