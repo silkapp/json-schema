@@ -126,13 +126,13 @@ unique vs = do
 
 inLower :: S.Bound -> Scientific -> M ()
 inLower b v =
-  if (maybe True ((<= v) . fromIntegral) . S.lower $ b)
+  if (maybe True (<= v) . S.lower $ b)
     then ok
     else err (BoundError b v)
 
 inUpper :: S.Bound -> Scientific -> M ()
 inUpper b v =
-  if (maybe True ((>= v) . fromIntegral) . S.upper $ b)
+  if (maybe True (>= v) . S.upper $ b)
     then ok
     else err (BoundError b v)
 
