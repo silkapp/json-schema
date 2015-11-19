@@ -38,7 +38,7 @@ library
     , aeson >= 0.7 && < 0.11
     , containers >= 0.3 && < 0.6
     , generic-aeson == 0.2.*
-    , generic-deriving >= 1.6 && < 1.9
+    , generic-deriving >= 1.6 && < 1.10
     , mtl >= 2.1 && < 2.3
     , scientific == 0.3.*
     , text >= 0.10 && < 1.3
