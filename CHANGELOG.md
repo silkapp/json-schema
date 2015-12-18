@@ -1,5 +1,9 @@
 # Changelog
 
+#### 0.7.4.1
+
+* aeson-0.10 produces new error messages so the test-suite was updated to reflect this.
+
 ### 0.7.4.0
 
 * Raise upper length limit of `UTCTime` since aeson-0.9 increased the precision.
