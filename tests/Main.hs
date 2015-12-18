@@ -1,6 +1,7 @@
 {-# OPTIONS -fno-warn-missing-signatures #-}
 {-# LANGUAGE
-    DeriveGeneric
+    CPP
+  , DeriveGeneric
   , OverloadedStrings
   , ScopedTypeVariables
   , TemplateHaskell
@@ -267,8 +268,13 @@ case_constructorWithMaybeField = do
   bidir "[null,2]" b
   valid b
 
+#if MIN_VERSION_aeson(0,10,0)
+  eq (Left "Error in $: expected Int, encountered Boolean" :: Either String X)
+     (eitherDecode "[true,2]")
+#else
   eq (Left "when expecting a Int, encountered Boolean instead" :: Either String X)
      (eitherDecode "[true,2]")
+#endif
 
   eq (Tuple [nullable number, number])
      (schema (Proxy :: Proxy X))
