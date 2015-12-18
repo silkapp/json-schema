@@ -1,4 +1,5 @@
 language: haskell
+sudo: false
 install:
   - "git clone https://github.com/silkapp/generic-aeson.git"
   - "cabal install --enable-tests --dry-run -v3 . generic-aeson/"
