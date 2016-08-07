@@ -35,7 +35,7 @@ library
     Data.JSON.Schema.Validate
   build-depends:
       base >= 4.4 && < 5
-    , aeson >= 0.7 && < 0.12
+    , aeson >= 0.7 && < 1.1
     , containers >= 0.3 && < 0.6
     , generic-aeson == 0.2.*
     , generic-deriving >= 1.6 && < 1.11
@@ -63,7 +63,7 @@ test-suite json-schema-generic-aeson-tests
     Test.Validate
   build-depends:
       base >= 4.4 && < 5
-    , aeson >= 0.7 && < 0.12
+    , aeson >= 0.7 && < 1.1
     , aeson-utils >= 0.2 && < 0.4
     , attoparsec >= 0.10 && < 0.14
     , bytestring >= 0.10 && < 0.12
