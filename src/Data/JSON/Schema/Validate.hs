@@ -9,8 +9,10 @@ module Data.JSON.Schema.Validate
   , ErrorType (..)
   ) where
 
-import Control.Applicative
-import Control.Monad.RWS.Strict
+import Prelude.Compat
+
+import Control.Monad.Compat
+import Control.Monad.RWS.Strict (MonadReader, MonadWriter, RWS, ask, local, runRWS, tell)
 import Data.Aeson (Value)
 import Data.HashMap.Strict (HashMap)
 import Data.Scientific

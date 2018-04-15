@@ -6,14 +6,16 @@
   #-}
 module Test.Util where
 
+import Prelude.Compat
+
 import Data.Aeson hiding (Result)
 import Data.Aeson.Parser ()
 import Data.Aeson.Utils (eitherDecodeV)
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 (unpack)
-import Data.List (intersperse)
-import Data.Proxy
+import Data.List.Compat (intersperse)
+import Data.Proxy.Compat
 import Test.Tasty.HUnit
 import qualified Data.Aeson.Parser as A
 import qualified Data.Aeson.Types  as A

@@ -9,8 +9,10 @@
   #-}
 module Main (main) where
 
+import Prelude.Compat
+
 import Data.Aeson hiding (Result)
-import Data.Proxy
+import Data.Proxy.Compat
 import GHC.Generics (Generic)
 import Generics.Generic.Aeson
 import Test.Tasty

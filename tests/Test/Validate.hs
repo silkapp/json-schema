@@ -5,9 +5,10 @@
   #-}
 module Test.Validate (tests) where
 
+import Prelude.Compat
+
 import Data.ByteString.Lazy
 import Data.Vector as V
-
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.TH

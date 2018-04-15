@@ -17,6 +17,8 @@ module Data.JSON.Schema.Combinators
   , nullable
   ) where
 
+import Prelude.Compat
+
 import Data.JSON.Schema.Types
 import Data.Text (Text)
 import qualified Data.Aeson as Aeson

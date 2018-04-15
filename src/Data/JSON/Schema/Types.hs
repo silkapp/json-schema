@@ -15,16 +15,18 @@ module Data.JSON.Schema.Types
   , unboundedLength
   ) where
 
+import Prelude.Compat
+
 import Data.Fixed
 import Data.Int
 import Data.Maybe
-import Data.Proxy
+import Data.Proxy.Compat
 import Data.Scientific
-import Data.String
+import Data.String.Compat
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
 import Data.Vector (Vector)
-import Data.Word
+import Data.Word.Compat
 import qualified Data.Aeson.Types    as Aeson
 import qualified Data.HashMap.Strict as H
 import qualified Data.Map            as M

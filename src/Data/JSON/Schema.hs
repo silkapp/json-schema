@@ -6,4 +6,4 @@ module Data.JSON.Schema
 
 import Data.JSON.Schema.Generic
 import Data.JSON.Schema.Types
-import Data.Proxy
+import Data.Proxy.Compat

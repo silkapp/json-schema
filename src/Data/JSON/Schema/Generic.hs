@@ -17,11 +17,12 @@ module Data.JSON.Schema.Generic
   , gSchemaWithSettings
   ) where
 
-import Control.Applicative hiding (empty, (<|>))
+import Prelude.Compat
+
 import Data.JSON.Schema.Combinators
 import Data.JSON.Schema.Types
 import Data.Maybe
-import Data.Proxy
+import Data.Proxy.Compat
 import Data.Text (Text)
 import GHC.Generics
 import Generics.Deriving.ConNames

@@ -4,8 +4,10 @@
   #-}
 module Example where
 
+import Prelude.Compat
+
 import Control.Applicative
-import Control.Monad
+import Control.Monad.Compat
 import Data.Aeson hiding (Object)
 import Data.Text (Text)
 import GHC.Generics
