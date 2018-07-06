@@ -10,7 +10,6 @@ import Prelude.Compat
 
 import Data.Aeson hiding (Result)
 import Data.Aeson.Parser ()
-import Data.Aeson.Utils (eitherDecodeV)
 import Data.Attoparsec.Lazy
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.Char8 (unpack)
@@ -27,7 +26,7 @@ import Data.JSON.Schema.Validate
 -- | Serializes a value to an aeson Value and validates that against the type's schema
 valid :: forall a . (Show a, ToJSON a, FromJSON a, JSONSchema a) => a -> Assertion
 valid v = do
-  case eitherDecodeV (encode v) of
+  case eitherDecode (encode v) of
     Left err -> error err
     Right r  -> case V.toList $ validate sch r of
       []   -> assertBool "x" True

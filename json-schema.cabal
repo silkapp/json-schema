@@ -70,8 +70,7 @@ test-suite json-schema-generic-aeson-tests
   build-depends:
       base >= 4.4 && < 5
     , base-compat-batteries == 0.10.*
-    , aeson >= 0.7 && < 1.5
-    , aeson-utils >= 0.2 && < 0.4
+    , aeson >= 0.9 && < 1.5
     , attoparsec >= 0.10 && < 0.14
     , bytestring >= 0.10 && < 0.12
     , generic-aeson == 0.2.*
