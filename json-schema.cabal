@@ -43,7 +43,7 @@ library
     Data.JSON.Schema.Types
     Data.JSON.Schema.Validate
   build-depends:
-      base >= 4.4 && < 5
+      base >= 4.6 && < 5
     , base-compat-batteries == 0.10.*
     , aeson >= 0.7 && < 1.5
     , containers >= 0.3 && < 0.6
@@ -70,7 +70,7 @@ test-suite json-schema-generic-aeson-tests
     Test.Util
     Test.Validate
   build-depends:
-      base >= 4.4 && < 5
+      base >= 4.6 && < 5
     , base-compat-batteries == 0.10.*
     , aeson >= 0.9 && < 1.5
     , attoparsec >= 0.10 && < 0.14
